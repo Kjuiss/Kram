@@ -1,0 +1,3211 @@
+<!DOCTYPE html>
+<html lang="de" style="--bg: #0e1015; --bg2: #0a0d12; --accent: #7de87d; --accent2: #b9ffcf;"><head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Leon — Interactive Skills Matrix (0–5)</title>
+  <style>
+    :root{
+      --bg:#0f1220; --bg2:#0b0e1a; --card:#171a2b; --muted:#a9b0c7; --text:#e8ecff; --accent:#7aa2ff; --accent2:#5cf2c7; --danger:#ff6b6b;
+      --ring: 0 0 0 3px rgba(122,162,255,.25);
+      --slider-track-h: 14px;
+      --slider-thumb: 24px;
+      --del-size: 22px;
+      --del-fs: 14px;
+      --peer-bg: linear-gradient(90deg, rgba(122,162,255,.22), rgba(92,242,199,.22));
+      --peer-border: rgba(122,162,255,.65);
+      --peer-text: #d8e4ff;
+      --ref-bg: linear-gradient(90deg, rgba(255,209,102,.22), rgba(255,226,154,.22));
+      --ref-border: #ffd166;
+      --ref-text: #1a1400;
+      --bar-bg: #11152b;
+      --bar-stroke: rgba(0,0,0,.35);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0; font-family:ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; background:linear-gradient(180deg,var(--bg),var(--bg2)); color:var(--text)}
+    .container{max-width:1160px; margin:0 auto; padding:28px 18px 80px}
+    header{display:flex; gap:16px; align-items:center; justify-content:space-between; margin-bottom:16px}
+    .title{display:flex; gap:14px; align-items:center}
+    .avatar{width:52px; height:52px; border-radius:14px; background:linear-gradient(135deg,var(--accent),var(--accent2)); display:grid; place-items:center; font-weight:800; color:#0d1020}
+    h1{font-size:1.4rem; margin:0}
+    .subtitle{margin:2px 0 0; color:var(--muted); font-size:.95rem; white-space:pre-line; direction:ltr; unicode-bidi:isolate}
+    .subtitle[contenteditable="true"]{border:1px dashed transparent;padding:2px 4px;border-radius:6px}
+    .subtitle[contenteditable="true"]:focus{outline:none;border-color:rgba(122,162,255,.5);background:rgba(122,162,255,.08)}
+    .title h1[contenteditable="true"]{border:1px dashed transparent;padding:2px 4px;border-radius:6px}
+    .title h1[contenteditable="true"]{outline:none}
+    .title h1[contenteditable="true"]:focus{border-color:rgba(122,162,255,.5);background:rgba(122,162,255,.08)}
+    .card{background:rgba(23,26,43,.8); border:1px solid rgba(255,255,255,.06); border-radius:18px; padding:16px}
+    .toolbar{display:flex; flex-wrap:wrap; gap:10px; align-items:center}
+    button,.chip, select{background:#1b2140; color:var(--text); border:1px solid rgba(255,255,255,.08); padding:9px 12px; border-radius:12px; cursor:pointer; font-weight:600}
+    select{cursor:pointer}
+    button:hover, select:hover{border-color:rgba(122,162,255,.6)}
+    button.primary{background:linear-gradient(180deg, #27335f, #1d264b); border-color:#2f3b6c}
+    button.ghost{background:transparent}
+    .tabs{display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap}
+    .tab{background:#101633; color:#e8ecff; border:1px solid rgba(255,255,255,.08); padding:8px 12px; border-radius:999px; cursor:pointer; font-weight:700}
+    .tab.active{outline:2px solid rgba(122,162,255,.6); background:#0e1532}
+    .tab.team{background:linear-gradient(90deg,#ffd166,#ffe29a); color:#000; border-color:#ffd166; font-weight:800}
+    .tab.team.active{outline:3px solid #ffd166; box-shadow:0 0 10px #ffd166}
+    .search{flex:1; min-width:220px; background:#0f142a; border:1px solid rgba(255,255,255,.08); color:#e8ecff; border-radius:12px; padding:10px 12px; outline:none}
+    .search:focus{box-shadow:var(--ring); border-color:#31407b}
+    .category{margin-top:16px; border-radius:14px; padding:10px}
+    .category.active{outline:2px solid var(--accent); box-shadow:0 0 0 6px rgba(122,162,255,.12) inset; background:rgba(122,162,255,.06)}
+    .category h3{margin:0 0 6px; font-size:1.05rem; color:#cdd5ff}
+    .h3-wrap{display:flex; align-items:center; gap:10px}
+    .marker{display:inline-block; width:8px; height:8px; border-radius:999px; background:var(--accent)}
+    .flex-spacer{flex:1 1 auto}
+    .cat-ctl{display:inline-flex; align-items:center; gap:8px; margin-left:auto}
+    .cat-range{appearance:none; width:180px; height:10px; background:#11152b; border-radius:999px; outline:none}
+    .cat-range::-webkit-slider-thumb{appearance:none; width:16px; height:16px; border-radius:50%; background:var(--accent); box-shadow:0 0 0 2px rgba(122,162,255,.3)}
+    .cat-range::-moz-range-thumb{width:16px; height:16px; border-radius:50%; background:var(--accent); border:none}
+    .cat-range::-webkit-slider-runnable-track{height:8px; border-radius:999px; background:linear-gradient(90deg, var(--accent) var(--value,0%), #1a2144 var(--value,0%))}
+    .cat-chip{padding:2px 8px; border-radius:999px; background:#0e1532; border:1px solid rgba(255,255,255,.08); color:#c9d4ff; font-size:.8rem}
+    .cat-del{border:none; background:transparent; color:var(--muted); cursor:pointer; font-size:12px}
+    .cat-del:hover{color:var(--danger)}
+    .grid{display:grid; grid-template-columns:1fr; gap:8px}
+    .row{display:grid; grid-template-columns: 1fr auto auto auto; grid-template-rows: auto auto; gap:8px 12px; align-items:center; padding:10px 12px; border-radius:12px}
+    .row:hover{background:rgba(255,255,255,.03)}
+    .row .name{grid-column:1/2; grid-row:1/2; font-weight:600}
+    .row .right{grid-column:2/3; grid-row:1/2; justify-self:end}
+    .row .del{grid-column:3/4; grid-row:1/2; justify-self:end}
+    .row .delta{grid-column:4/5; grid-row:1/2; justify-self:end; display:flex; gap:6px; flex-wrap:wrap}
+    .row .slider{grid-column:1/-1; grid-row:2/3}
+    .range{appearance:none; width:100%; height:var(--slider-track-h); background:#11152b; border-radius:999px; outline:none}
+    .range::-webkit-slider-thumb{appearance:none; width:var(--slider-thumb); height:var(--slider-thumb); border-radius:50%; background:var(--accent); box-shadow:0 0 0 3px rgba(122,162,255,.3)}
+    .range::-moz-range-thumb{width:var(--slider-thumb); height:var(--slider-thumb); border-radius:50%; background:var(--accent); border:none}
+    .range::-webkit-slider-runnable-track{height:var(--slider-track-h); border-radius:999px; background:linear-gradient(90deg, var(--accent) var(--value,0%), #1a2144 var(--value,0%))}
+    .del{border:1px solid rgba(255,255,255,.18); background:#121833; color:#a9b0c7; cursor:pointer; display:inline-grid; place-items:center; width:var(--del-size); height:var(--del-size); border-radius:8px; padding:0; font-size:var(--del-fs); line-height:1;}
+    .del:hover{color:#fff; border-color:rgba(255,255,255,.35); background:#101633}
+    .footer{margin-top:20px; display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap}
+    .note{color:var(--muted)}
+    .tag{display:inline-flex; align-items:center; gap:6px; background:#141a32; border:1px solid rgba(255,255,255,.08); padding:6px 10px; border-radius:999px; font-size:.85rem}
+    .live-hint{position:fixed; z-index:9999; background:#0e1532; border:1px solid rgba(255,255,255,.15); padding:8px 10px; border-radius:10px; font-size:.85rem; box-shadow:0 10px 30px rgba(0,0,0,.45); pointer-events:none; transform:translate(-50%,-130%); opacity:0; transition:opacity .18s ease}
+    .hidden{display:none}
+    .sr-only{position:absolute !important; width:1px !important; height:1px !important; padding:0 !important; margin:-1px !important; overflow:hidden !important; clip:rect(0,0,0,0) !important; white-space:nowrap !important; border:0 !important;}
+    .delta-chip{padding:2px 8px; border-radius:999px; border:1px solid rgba(255,255,255,.18); font-size:.8rem; display:inline-flex; align-items:center; gap:6px; font-weight:700}
+    .delta-small{opacity:.95}
+    .delta-mid{transform:scale(1.02)}
+    .delta-big{transform:scale(1.05)}
+    .delta-chip .sign{opacity:.95; font-weight:900}
+    .delta-peer{background:var(--peer-bg); border-color:var(--peer-border); color:#d8e4ff}
+    .delta-ref{background:var(--ref-bg); border-color:var(--ref-border); color:var(--ref-text)}
+    .delta-chip .badge{display:inline-grid; place-items:center; width:18px; height:18px; border-radius:999px; font-size:.72rem; font-weight:900; line-height:1}
+    .delta-peer .badge{background:rgba(122,162,255,.25); border:1px solid var(--peer-border)}
+    .delta-ref .badge{background:rgba(255,209,102,.25); border:1px solid var(--ref-border)}
+    .js-banner{position:sticky; top:0; z-index:9999; background:#fff3cd; color:#222; border:1px solid #ffe69c; padding:10px 12px; border-radius:12px; margin:12px 0; box-shadow:0 6px 20px rgba(0,0,0,.15)}
+    .js-banner b{color:#7a5c00}
+    dialog{border:none; border-radius:18px; background:var(--card); color:var(--text); padding:18px 18px 14px; box-shadow:0 18px 60px rgba(0,0,0,.5); max-width: 920px}
+    dialog::backdrop{background:rgba(0,0,0,.4)}
+    .dialog-row{display:grid; gap:10px; margin:10px 0}
+    .dialog-actions{display:flex; justify-content:space-between; gap:10px; align-items:center}
+    .row.team{grid-template-columns:1.2fr 3fr 80px}
+    .bar{height:10px; background:var(--bar-bg); border-radius:999px; position:relative; overflow:hidden}
+    .bar-fill{position:absolute; inset:0 0 0 0; width:0%; background:linear-gradient(90deg, var(--accent), var(--accent2)); transition:width .2s}
+
+    /* PRINT / PDF: Es wird ausschließlich #print-root gedruckt */
+    #print-root{display:none}
+    @media print{
+      .container{ display:none !important }   /* alles normale UI verstecken */
+      #print-root{ display:block !important }
+      .live-hint, dialog, .js-banner { display:none !important }
+      body { background:white !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="title">
+        <div class="avatar" id="avatar">LL</div>
+        <div>
+          <h1 id="display-name" contenteditable="true" spellcheck="false">Leon</h1>
+          <div class="subtitle" id="subtitle" contenteditable="true" spellcheck="false">UX - App</div>
+        </div>
+      </div>
+      <div class="toolbar">
+        <span class="chip" id="profile-pill">Tab: Leon</span>
+        <span class="chip hidden" id="peer-pill" title="Peer-Review aktiv">Peer: –</span>
+
+        <select id="sel-ref-view" title="Vergleich mit Referenzprofil">
+          <option value="">Kein Vergleich</option>
+          <option value="Junior">Referenz: Junior</option>
+          <option value="Professional">Referenz: Professional</option>
+          <option value="Senior">Referenz: Senior</option>
+          <option value="Lead">Referenz: Lead</option>
+        </select>
+        <button id="btn-ref-edit" title="Referenzprofile bearbeiten">Referenzen</button>
+
+        <button id="btn-peer">Peer-Review</button>
+        <!-- Entfernt: Drucken-Button -->
+        <button id="btn-pdf" class="ghost">PDF</button>
+        <button id="btn-open">Datei öffnen</button>
+        <button id="btn-save" class="primary">Speichern</button>
+        <button id="btn-save-as">Speichern unter</button>
+        <button id="btn-export-json">Export JSON</button>
+        <input type="file" id="import-file" class="hidden" accept="application/json, text/html">
+        <button id="btn-import">Import JSON/HTML</button>
+        <button id="btn-reset">Zurücksetzen</button>
+      </div>
+    </header>
+
+    <div class="card">
+      <div class="tabs" id="tabs"><button class="tab" data-user="UX-LEAD">UX-LEAD</button><button class="tab team" data-user="Team">Team</button></div>
+
+      <div class="toolbar" style="margin-bottom:12px">
+        <input class="search" id="search" placeholder="Suche nach Skill/Tool… (z.B. Figma, Unreal, VSS)">
+        <button id="btn-add">+ Skill in Soft Skills</button>
+        <button id="btn-add-cat">+ Kategorie hinzufügen</button>
+        <button id="btn-collapse">Alles zuklappen</button>
+        <button id="btn-expand">Alles aufklappen</button>
+        <button id="btn-team" class="ghost" title="Team-Mitglieder verwalten">Team bearbeiten</button>
+        <button id="btn-team-filter" class="ghost" title="Mitglieder für die Team-Berechnung auswählen">Team-Filter</button>
+      </div>
+
+      <div id="categories"><section class="category" data-idx="0"><h3><div class="h3-wrap"><button class="chip" title="Kategorie ein-/ausklappen" aria-controls="cat-0-grid" aria-expanded="true">▾</button> <span class="marker"></span> <span style="cursor: text;">System UX (Strategisch)</span><div class="flex-spacer"></div><div class="cat-ctl"><input type="range" min="0" max="5" step="1" class="cat-range" style="--value: 0%;"><span class="cat-chip">Ø 0</span><button class="cat-del" title="Kategorie entfernen">✕</button></div></div></h3><div class="grid" id="cat-0-grid"><div class="row"><div class="name editable" title="Klick zum Umbenennen">Experience Vision &amp; Roadmap</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-sjd94j3qzcg">Experience Vision &amp; Roadmap</label><input type="range" min="0" max="5" step="1" class="range" id="s-sjd94j3qzcg" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div><div class="row"><div class="name editable" title="Klick zum Umbenennen">Service-/Ecosystem-Mapping</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-hqpsykfk3j5">Service-/Ecosystem-Mapping</label><input type="range" min="0" max="5" step="1" class="range" id="s-hqpsykfk3j5" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div><div class="row"><div class="name editable" title="Klick zum Umbenennen">Information Architecture</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-687q25ppkzg">Information Architecture</label><input type="range" min="0" max="5" step="1" class="range" id="s-687q25ppkzg" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div><div class="row"><div class="name editable" title="Klick zum Umbenennen">Telemetry &amp; UX‑KPIs (Strategie)</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-el6rivawp4m">Telemetry &amp; UX‑KPIs (Strategie)</label><input type="range" min="0" max="5" step="1" class="range" id="s-el6rivawp4m" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div></div></section><section class="category" data-idx="1"><h3><div class="h3-wrap"><button class="chip" title="Kategorie ein-/ausklappen" aria-controls="cat-1-grid" aria-expanded="true">▾</button> <span class="marker"></span> <span style="cursor: text;">Design &amp; HMI Craft (Operativ)</span><div class="flex-spacer"></div><div class="cat-ctl"><input type="range" min="0" max="5" step="1" class="cat-range" style="--value: 0%;"><span class="cat-chip">Ø 0</span><button class="cat-del" title="Kategorie entfernen">✕</button></div></div></h3><div class="grid" id="cat-1-grid"><div class="row"><div class="name editable" title="Klick zum Umbenennen">HMI‑Konzept &amp; Flows</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-03t4856dwoal">HMI‑Konzept &amp; Flows</label><input type="range" min="0" max="5" step="1" class="range" id="s-03t4856dwoal" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div><div class="row"><div class="name editable" title="Klick zum Umbenennen">Interaction Design</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-ibnpf54g439">Interaction Design</label><input type="range" min="0" max="5" step="1" class="range" id="s-ibnpf54g439" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div><div class="row"><div class="name editable" title="Klick zum Umbenennen">UI/Visual Design</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-7muvwpy5cal">UI/Visual Design</label><input type="range" min="0" max="5" step="1" class="range" id="s-7muvwpy5cal" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div><div class="row"><div class="name editable" title="Klick zum Umbenennen">Designsystem‑Reife (DSYS)</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-e466z04mz6r">Designsystem‑Reife (DSYS)</label><input type="range" min="0" max="5" step="1" class="range" id="s-e466z04mz6r" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div><div class="row"><div class="name editable" title="Klick zum Umbenennen">Figma: Components/Tokens/Dev Mode</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-6tmiij2iv8u">Figma: Components/Tokens/Dev Mode</label><input type="range" min="0" max="5" step="1" class="range" id="s-6tmiij2iv8u" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div><div class="row"><div class="name editable" title="Klick zum Umbenennen">Motion/Prototyping (ProtoPie etc.)</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-ldsbdn4xrf">Motion/Prototyping (ProtoPie etc.)</label><input type="range" min="0" max="5" step="1" class="range" id="s-ldsbdn4xrf" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div><div class="row"><div class="name editable" title="Klick zum Umbenennen">Testing &amp; Prototyping (HMI)</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-ta3g3gfzpr">Testing &amp; Prototyping (HMI)</label><input type="range" min="0" max="5" step="1" class="range" id="s-ta3g3gfzpr" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div><div class="row"><div class="name editable" title="Klick zum Umbenennen">Embedded UI Patterns (TFT/DSP)</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-ruqyuvvn8uq">Embedded UI Patterns (TFT/DSP)</label><input type="range" min="0" max="5" step="1" class="range" id="s-ruqyuvvn8uq" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div></div></section><section class="category" data-idx="2"><h3><div class="h3-wrap"><button class="chip" title="Kategorie ein-/ausklappen" aria-controls="cat-2-grid" aria-expanded="true">▾</button> <span class="marker"></span> <span style="cursor: text;">DesignOps &amp; Bridge (Technisch)</span><div class="flex-spacer"></div><div class="cat-ctl"><input type="range" min="0" max="5" step="1" class="cat-range" style="--value: 0%;"><span class="cat-chip">Ø 0</span><button class="cat-del" title="Kategorie entfernen">✕</button></div></div></h3><div class="grid" id="cat-2-grid"><div class="row"><div class="name editable" title="Klick zum Umbenennen">UX Engineering (Figma→Code Bridge)</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-rl63phtqjsb">UX Engineering (Figma→Code Bridge)</label><input type="range" min="0" max="5" step="1" class="range" id="s-rl63phtqjsb" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div><div class="row"><div class="name editable" title="Klick zum Umbenennen">DevOps CI/CD Literacy</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-a8qeg2qwi9d">DevOps CI/CD Literacy</label><input type="range" min="0" max="5" step="1" class="range" id="s-a8qeg2qwi9d" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div><div class="row"><div class="name editable" title="Klick zum Umbenennen">Android HMI (Jetpack Compose Demo)</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-rbwyvnb9v0s">Android HMI (Jetpack Compose Demo)</label><input type="range" min="0" max="5" step="1" class="range" id="s-rbwyvnb9v0s" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div><div class="row"><div class="name editable" title="Klick zum Umbenennen">TouchGFX / Embedded UI</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-fwonb0iscnn">TouchGFX / Embedded UI</label><input type="range" min="0" max="5" step="1" class="range" id="s-fwonb0iscnn" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div><div class="row"><div class="name editable" title="Klick zum Umbenennen">Interoperabilität (Matter/Home Connect)</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-qlovw8y70r">Interoperabilität (Matter/Home Connect)</label><input type="range" min="0" max="5" step="1" class="range" id="s-qlovw8y70r" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div><div class="row"><div class="name editable" title="Klick zum Umbenennen">Collab mit Elektronik (ELEC)</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-mse7ohylrr">Collab mit Elektronik (ELEC)</label><input type="range" min="0" max="5" step="1" class="range" id="s-mse7ohylrr" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div><div class="row"><div class="name editable" title="Klick zum Umbenennen">Dual‑Track (Discovery/Delivery)</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-2k5fwrloe2o">Dual‑Track (Discovery/Delivery)</label><input type="range" min="0" max="5" step="1" class="range" id="s-2k5fwrloe2o" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div></div></section><section class="category" data-idx="3"><h3><div class="h3-wrap"><button class="chip" title="Kategorie ein-/ausklappen" aria-controls="cat-3-grid" aria-expanded="true">▾</button> <span class="marker"></span> <span style="cursor: text;">Leadership &amp; Governance</span><div class="flex-spacer"></div><div class="cat-ctl"><input type="range" min="0" max="5" step="1" class="cat-range" style="--value: 0%;"><span class="cat-chip">Ø 0</span><button class="cat-del" title="Kategorie entfernen">✕</button></div></div></h3><div class="grid" id="cat-3-grid"><div class="row"><div class="name editable" title="Klick zum Umbenennen">FO‑Depth (Fach‑Owner)</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-31b8438kh35">FO‑Depth (Fach‑Owner)</label><input type="range" min="0" max="5" step="1" class="range" id="s-31b8438kh35" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div><div class="row"><div class="name editable" title="Klick zum Umbenennen">XFT‑Score (Crossfunktionale Teams)</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-as49dre9s">XFT‑Score (Crossfunktionale Teams)</label><input type="range" min="0" max="5" step="1" class="range" id="s-as49dre9s" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div><div class="row"><div class="name editable" title="Klick zum Umbenennen">SAFe/PI Planning (Rollen &amp; Artefakte)</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-f0jkd9fgcp">SAFe/PI Planning (Rollen &amp; Artefakte)</label><input type="range" min="0" max="5" step="1" class="range" id="s-f0jkd9fgcp" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div><div class="row"><div class="name editable" title="Klick zum Umbenennen">Roadmap &amp; Governance (DesignOps)</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-kar03m87ih">Roadmap &amp; Governance (DesignOps)</label><input type="range" min="0" max="5" step="1" class="range" id="s-kar03m87ih" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div><div class="row"><div class="name editable" title="Klick zum Umbenennen">Cross‑functional Delivery (OEM/Tier‑X)</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-x8gtq7oh7mj">Cross‑functional Delivery (OEM/Tier‑X)</label><input type="range" min="0" max="5" step="1" class="range" id="s-x8gtq7oh7mj" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div><div class="row"><div class="name editable" title="Klick zum Umbenennen">Stakeholder Management</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-jf56r1c3eip">Stakeholder Management</label><input type="range" min="0" max="5" step="1" class="range" id="s-jf56r1c3eip" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div></div></section><section class="category active" data-idx="4"><h3><div class="h3-wrap"><button class="chip" title="Kategorie ein-/ausklappen" aria-controls="cat-4-grid" aria-expanded="true">▾</button> <span class="marker"></span> <span style="cursor: text;">Soft Skills</span><div class="flex-spacer"></div><div class="cat-ctl"><input type="range" min="0" max="5" step="1" class="cat-range" style="--value: 0%;"><span class="cat-chip">Ø 0</span><button class="cat-del" title="Kategorie entfernen">✕</button></div></div></h3><div class="grid" id="cat-4-grid"><div class="row"><div class="name editable" title="Klick zum Umbenennen">Systemisches Denken</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-8ulg641m6zc">Systemisches Denken</label><input type="range" min="0" max="5" step="1" class="range" id="s-8ulg641m6zc" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div><div class="row"><div class="name editable" title="Klick zum Umbenennen">Kommunikation (DE/EN)</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-t0vsfijp1i">Kommunikation (DE/EN)</label><input type="range" min="0" max="5" step="1" class="range" id="s-t0vsfijp1i" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div><div class="row"><div class="name editable" title="Klick zum Umbenennen">Storytelling &amp; Facilitation</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-uksdhi1khuf">Storytelling &amp; Facilitation</label><input type="range" min="0" max="5" step="1" class="range" id="s-uksdhi1khuf" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div><div class="row"><div class="name editable" title="Klick zum Umbenennen">Mentoring &amp; Moderation</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-r3y8jkyrglg">Mentoring &amp; Moderation</label><input type="range" min="0" max="5" step="1" class="range" id="s-r3y8jkyrglg" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div><div class="row"><div class="name editable" title="Klick zum Umbenennen">Konfliktsensibilität</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-q7kydzsldeb">Konfliktsensibilität</label><input type="range" min="0" max="5" step="1" class="range" id="s-q7kydzsldeb" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div></div></section><section class="category" data-idx="5"><h3><div class="h3-wrap"><button class="chip" title="Kategorie ein-/ausklappen" aria-controls="cat-5-grid" aria-expanded="true">▾</button> <span class="marker"></span> <span style="cursor: text;">User Interface (UI) Design</span><div class="flex-spacer"></div><div class="cat-ctl"><input type="range" min="0" max="5" step="1" class="cat-range" style="--value: 0%;"><span class="cat-chip">Ø 0</span><button class="cat-del" title="Kategorie entfernen">✕</button></div></div></h3><div class="grid" id="cat-5-grid"><div class="row"><div class="name editable" title="Klick zum Umbenennen">3D UI Design</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-7ftgc6rgvhg">3D UI Design</label><input type="range" min="0" max="5" step="1" class="range" id="s-7ftgc6rgvhg" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div><div class="row"><div class="name editable" title="Klick zum Umbenennen">Barrierefreiheit</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-yy95pv3cjh9">Barrierefreiheit</label><input type="range" min="0" max="5" step="1" class="range" id="s-yy95pv3cjh9" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div><div class="row"><div class="name editable" title="Klick zum Umbenennen">Entwicklung von UI-Komponenten</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-tpxudwjmg7c">Entwicklung von UI-Komponenten</label><input type="range" min="0" max="5" step="1" class="range" id="s-tpxudwjmg7c" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div><div class="row"><div class="name editable" title="Klick zum Umbenennen">Grundprinzipien des UI-Designs</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-ct5wzgqdoz">Grundprinzipien des UI-Designs</label><input type="range" min="0" max="5" step="1" class="range" id="s-ct5wzgqdoz" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div><div class="row"><div class="name editable" title="Klick zum Umbenennen">Ikonografie</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-t0ydp10j36n">Ikonografie</label><input type="range" min="0" max="5" step="1" class="range" id="s-t0ydp10j36n" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div><div class="row"><div class="name editable" title="Klick zum Umbenennen">Informationsdesign</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-3ade4nmshkd">Informationsdesign</label><input type="range" min="0" max="5" step="1" class="range" id="s-3ade4nmshkd" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div><div class="row"><div class="name editable" title="Klick zum Umbenennen">Interaction Design</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-kjghcfcci8f">Interaction Design</label><input type="range" min="0" max="5" step="1" class="range" id="s-kjghcfcci8f" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div><div class="row"><div class="name editable" title="Klick zum Umbenennen">Interaktives UI-Mockup-Design</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-p8cb6w7uqw">Interaktives UI-Mockup-Design</label><input type="range" min="0" max="5" step="1" class="range" id="s-p8cb6w7uqw" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div><div class="row"><div class="name editable" title="Klick zum Umbenennen">Layout und Raster</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-buom6qu3r7">Layout und Raster</label><input type="range" min="0" max="5" step="1" class="range" id="s-buom6qu3r7" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div><div class="row"><div class="name editable" title="Klick zum Umbenennen">Mobiles UI-Design</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-oxzvw7r0ptm">Mobiles UI-Design</label><input type="range" min="0" max="5" step="1" class="range" id="s-oxzvw7r0ptm" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div><div class="row"><div class="name editable" title="Klick zum Umbenennen">Prototyping</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-rb8d8z3limf">Prototyping</label><input type="range" min="0" max="5" step="1" class="range" id="s-rb8d8z3limf" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div><div class="row"><div class="name editable" title="Klick zum Umbenennen">Touch Interface Design</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-lzhnxir4t5i">Touch Interface Design</label><input type="range" min="0" max="5" step="1" class="range" id="s-lzhnxir4t5i" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div><div class="row"><div class="name editable" title="Klick zum Umbenennen">Typografie</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-1clvv2e0b12">Typografie</label><input type="range" min="0" max="5" step="1" class="range" id="s-1clvv2e0b12" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div><div class="row"><div class="name editable" title="Klick zum Umbenennen">UI Design Patterns</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-qza9bt05ai">UI Design Patterns</label><input type="range" min="0" max="5" step="1" class="range" id="s-qza9bt05ai" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div><div class="row"><div class="name editable" title="Klick zum Umbenennen">UI-Trends und Innovationen</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-dyuu7fdakg">UI-Trends und Innovationen</label><input type="range" min="0" max="5" step="1" class="range" id="s-dyuu7fdakg" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div><div class="row"><div class="name editable" title="Klick zum Umbenennen">Voice UI Design</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-68jdsvuc46y">Voice UI Design</label><input type="range" min="0" max="5" step="1" class="range" id="s-68jdsvuc46y" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div></div></section><section class="category" data-idx="6"><h3><div class="h3-wrap"><button class="chip" title="Kategorie ein-/ausklappen" aria-controls="cat-6-grid" aria-expanded="true">▾</button> <span class="marker"></span> <span style="cursor: text;">Customer Journey Mapping</span><div class="flex-spacer"></div><div class="cat-ctl"><input type="range" min="0" max="5" step="1" class="cat-range" style="--value: 0%;"><span class="cat-chip">Ø 0</span><button class="cat-del" title="Kategorie entfernen">✕</button></div></div></h3><div class="grid" id="cat-6-grid"><div class="row"><div class="name editable" title="Klick zum Umbenennen">Emotion Mapping</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-yeojk9ihsh">Emotion Mapping</label><input type="range" min="0" max="5" step="1" class="range" id="s-yeojk9ihsh" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div><div class="row"><div class="name editable" title="Klick zum Umbenennen">Kunden-Personas</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-nomllj9ytw">Kunden-Personas</label><input type="range" min="0" max="5" step="1" class="range" id="s-nomllj9ytw" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div><div class="row"><div class="name editable" title="Klick zum Umbenennen">Kundenverhalten</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-kng9vwan88g">Kundenverhalten</label><input type="range" min="0" max="5" step="1" class="range" id="s-kng9vwan88g" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div><div class="row"><div class="name editable" title="Klick zum Umbenennen">Touchpoint-Identifikation</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-ug87d3zp4kc">Touchpoint-Identifikation</label><input type="range" min="0" max="5" step="1" class="range" id="s-ug87d3zp4kc" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div></div></section><section class="category" data-idx="7"><h3><div class="h3-wrap"><button class="chip" title="Kategorie ein-/ausklappen" aria-controls="cat-7-grid" aria-expanded="true">▾</button> <span class="marker"></span> <span style="cursor: text;">Designprinzipien</span><div class="flex-spacer"></div><div class="cat-ctl"><input type="range" min="0" max="5" step="1" class="cat-range" style="--value: 0%;"><span class="cat-chip">Ø 0</span><button class="cat-del" title="Kategorie entfernen">✕</button></div></div></h3><div class="grid" id="cat-7-grid"><div class="row"><div class="name editable" title="Klick zum Umbenennen">CI-Standards</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-sf8ke9hzgag">CI-Standards</label><input type="range" min="0" max="5" step="1" class="range" id="s-sf8ke9hzgag" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div></div></section><section class="category" data-idx="8"><h3><div class="h3-wrap"><button class="chip" title="Kategorie ein-/ausklappen" aria-controls="cat-8-grid" aria-expanded="true">▾</button> <span class="marker"></span> <span style="cursor: text;">Grafikdesign</span><div class="flex-spacer"></div><div class="cat-ctl"><input type="range" min="0" max="5" step="1" class="cat-range" style="--value: 0%;"><span class="cat-chip">Ø 0</span><button class="cat-del" title="Kategorie entfernen">✕</button></div></div></h3><div class="grid" id="cat-8-grid"><div class="row"><div class="name editable" title="Klick zum Umbenennen">Bildsprache und Icons</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-93r75j924e">Bildsprache und Icons</label><input type="range" min="0" max="5" step="1" class="range" id="s-93r75j924e" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div></div></section><section class="category" data-idx="9"><h3><div class="h3-wrap"><button class="chip" title="Kategorie ein-/ausklappen" aria-controls="cat-9-grid" aria-expanded="true">▾</button> <span class="marker"></span> <span style="cursor: text;">Requirements Management</span><div class="flex-spacer"></div><div class="cat-ctl"><input type="range" min="0" max="5" step="1" class="cat-range" style="--value: 0%;"><span class="cat-chip">Ø 0</span><button class="cat-del" title="Kategorie entfernen">✕</button></div></div></h3><div class="grid" id="cat-9-grid"><div class="row"><div class="name editable" title="Klick zum Umbenennen">Schnittstellenmanagement</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-gbxaduzzt8">Schnittstellenmanagement</label><input type="range" min="0" max="5" step="1" class="range" id="s-gbxaduzzt8" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div></div></section><section class="category" data-idx="10"><h3><div class="h3-wrap"><button class="chip" title="Kategorie ein-/ausklappen" aria-controls="cat-10-grid" aria-expanded="true">▾</button> <span class="marker"></span> <span style="cursor: text;">User Experience (UX) Design</span><div class="flex-spacer"></div><div class="cat-ctl"><input type="range" min="0" max="5" step="1" class="cat-range" style="--value: 0%;"><span class="cat-chip">Ø 0</span><button class="cat-del" title="Kategorie entfernen">✕</button></div></div></h3><div class="grid" id="cat-10-grid"><div class="row"><div class="name editable" title="Klick zum Umbenennen">Mockups</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-3ut550if6h7">Mockups</label><input type="range" min="0" max="5" step="1" class="range" id="s-3ut550if6h7" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div><div class="row"><div class="name editable" title="Klick zum Umbenennen">Storyboarding</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-qin7sp0fok">Storyboarding</label><input type="range" min="0" max="5" step="1" class="range" id="s-qin7sp0fok" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div><div class="row"><div class="name editable" title="Klick zum Umbenennen">Trendresearch</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-javhydndh7m">Trendresearch</label><input type="range" min="0" max="5" step="1" class="range" id="s-javhydndh7m" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div><div class="row"><div class="name editable" title="Klick zum Umbenennen">UX-Analyse</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-ovoqr7chuv">UX-Analyse</label><input type="range" min="0" max="5" step="1" class="range" id="s-ovoqr7chuv" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div><div class="row"><div class="name editable" title="Klick zum Umbenennen">UX-Metriken</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-65wfdfhoe1q">UX-Metriken</label><input type="range" min="0" max="5" step="1" class="range" id="s-65wfdfhoe1q" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div><div class="row"><div class="name editable" title="Klick zum Umbenennen">User Journey</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-yrd4ftm8oo">User Journey</label><input type="range" min="0" max="5" step="1" class="range" id="s-yrd4ftm8oo" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div><div class="row"><div class="name editable" title="Klick zum Umbenennen">Wireframing</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-voww5jqblwf">Wireframing</label><input type="range" min="0" max="5" step="1" class="range" id="s-voww5jqblwf" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div><div class="row"><div class="name editable" title="Klick zum Umbenennen">Frontend-Grundlagen</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-0e6bjc06vajm">Frontend-Grundlagen</label><input type="range" min="0" max="5" step="1" class="range" id="s-0e6bjc06vajm" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div><div class="row"><div class="name editable" title="Klick zum Umbenennen">Webdesign</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-jd0abhuwc6r">Webdesign</label><input type="range" min="0" max="5" step="1" class="range" id="s-jd0abhuwc6r" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div><div class="row"><div class="name editable" title="Klick zum Umbenennen">Usability Testing</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-7bu8t8n0qbp">Usability Testing</label><input type="range" min="0" max="5" step="1" class="range" id="s-7bu8t8n0qbp" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div><div class="row"><div class="name editable" title="Klick zum Umbenennen">UX Writing</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-2ikuxqkah0u">UX Writing</label><input type="range" min="0" max="5" step="1" class="range" id="s-2ikuxqkah0u" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div><div class="row"><div class="name editable" title="Klick zum Umbenennen">Prototyping</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-3wv9yksjndq">Prototyping</label><input type="range" min="0" max="5" step="1" class="range" id="s-3wv9yksjndq" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div><div class="row"><div class="name editable" title="Klick zum Umbenennen">Interaction Design</div><div class="right muted" title="Klick zum Bearbeiten">0</div><button class="del" title="Skill entfernen">✕</button><div class="delta"></div><div class="slider"><label class="sr-only" for="s-dxbjh5tmlei">Interaction Design</label><input type="range" min="0" max="5" step="1" class="range" id="s-dxbjh5tmlei" role="slider" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="0: Keine Praxis" style="--value: 0%;"></div></div></div></section></div>
+
+      <div class="footer">
+        <div class="note">Änderungen werden im Arbeitsspeicher gehalten. <b>„Speichern“</b> schreibt in die aktuell geöffnete Datei. <b>„Speichern unter“</b> erzeugt eine selbstenthaltende HTML-Datei mit allen Daten.</div>
+        <div class="tag">Shift+←/→ für Feinschritte</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRINT ROOT (nur für PDF-Ausgabe) -->
+  <div id="print-root"></div>
+
+  <!-- Dialogs -->
+  <dialog id="dlg-add">
+    <h3>Neuen Skill hinzufügen</h3>
+    <div class="dialog-row">
+      <label>Name<br><input id="add-name" class="search" placeholder="z.B. Motion Specs, C++ Basics"></label>
+      <label>Startwert (0–5)<br><input id="add-val" type="number" min="0" max="5" value="0" class="search"></label>
+    </div>
+    <div class="dialog-actions">
+      <div><span id="add-cat-name" class="tag">Soft Skills</span></div>
+      <div>
+        <button id="add-cancel">Abbrechen</button>
+        <button class="primary" id="add-confirm">Hinzufügen</button>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="dlg-team">
+    <h3>Team bearbeiten</h3>
+    <div id="team-list" class="dialog-row"><div class="dialog-row"><input class="search" style="width: 100%;"><button title="Mitglied entfernen">✕</button></div></div>
+    <div class="dialog-actions">
+      <button id="team-add">+ Mitglied hinzufügen</button>
+      <div>
+        <button id="team-cancel">Abbrechen</button>
+        <button id="team-save" class="primary">Speichern</button>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="dlg-team-filter">
+    <h3>Team-Filter</h3>
+    <div class="dialog-row" style="max-height: 46vh; overflow:auto">
+      <div id="team-filter-list"></div>
+    </div>
+    <div class="dialog-actions">
+      <div>
+        <button id="filter-all" class="ghost">Alle</button>
+        <button id="filter-none" class="ghost">Keine</button>
+      </div>
+      <div>
+        <button id="filter-cancel">Abbrechen</button>
+        <button id="filter-save" class="primary">Übernehmen</button>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="dlg-peer">
+    <h3>Peer-Review starten</h3>
+    <div class="dialog-row">
+      <label>Wer bewertet?<br><select id="sel-reviewer" class="search"></select></label>
+      <label>Wen bewertest du?<br><select id="sel-reviewee" class="search"></select></label>
+    </div>
+    <div class="dialog-actions">
+      <button id="peer-cancel">Abbrechen</button>
+      <button id="peer-confirm" class="primary">Starten</button>
+    </div>
+    <p class="note">Hinweis: Im Peer-Review-Modus bearbeitest du ausschließlich deine Bewertung für die ausgewählte Person. Kategorien/Skills sind gesperrt.</p>
+  </dialog>
+
+  <dialog id="dlg-ref">
+    <h3>Referenzprofile bearbeiten</h3>
+    <div class="dialog-row" style="display:flex; gap:10px; align-items:center; flex-wrap:wrap">
+      <label>Profil<br>
+        <select id="ref-level" class="search">
+          <option>Junior</option>
+          <option>Professional</option>
+          <option>Senior</option>
+          <option>Lead</option>
+        </select>
+      </label>
+      <button id="ref-fill-j" class="ghost" title="Alle auf 1 setzen">Alle = 1 (Junior)</button>
+      <button id="ref-fill-p" class="ghost" title="Alle auf 3 setzen">Alle = 3 (Professional)</button>
+      <button id="ref-fill-s" class="ghost" title="Alle auf 4 setzen">Alle = 4 (Senior)</button>
+      <button id="ref-fill-l" class="ghost" title="Alle auf 5 setzen">Alle = 5 (Lead)</button>
+      <input id="ref-search" class="search" placeholder="Filter… (Skill/Kategorie)">
+    </div>
+    <div class="dialog-row" style="max-height:55vh; overflow:auto" id="ref-editor"></div>
+    <div class="dialog-actions">
+      <div class="note">Skala 0–5. Werte wirken sich auf Vergleich &amp; PDF aus.</div>
+      <div>
+        <button id="ref-cancel">Abbrechen</button>
+        <button id="ref-save" class="primary">Speichern</button>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="dlg-pdf">
+    <h3>PDF-Export</h3>
+    <div class="dialog-row" style="display:grid; grid-template-columns:1fr 1fr; gap:12px">
+      <div>
+        <b>Profile auswählen</b>
+        <div id="pdf-list" style="max-height:36vh; overflow:auto; margin-top:6px"></div>
+      </div>
+      <div>
+        <b>Referenz im PDF</b>
+        <div style="margin-top:6px; display:grid; gap:8px">
+          <label><input type="checkbox" id="pdf-include-ref"> Referenzbalken &amp; Werte einblenden</label>
+          <label>Referenzprofil<br>
+            <select id="pdf-ref-level" class="search" disabled="">
+              <option>Junior</option>
+              <option>Professional</option>
+              <option>Senior</option>
+              <option>Lead</option>
+            </select>
+          </label>
+          <div class="tag">Tipp: Im Druckdialog „Als PDF speichern“ wählen. (Browservermerk wie Datum/URL kann im Druckdialog deaktiviert werden.)</div>
+        </div>
+      </div>
+    </div>
+    <div class="dialog-actions">
+      <div>
+        <button id="pdf-all" class="ghost">Alle markieren</button>
+        <button id="pdf-none" class="ghost">Keine</button>
+      </div>
+      <div>
+        <button id="pdf-cancel">Abbrechen</button>
+        <button id="pdf-confirm" class="primary">PDF erzeugen</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Embedded State (Daten wie geliefert; Migration auf 0–5 erfolgt zur Laufzeit) -->
+  <script id="EMBEDDED_STATE" type="application/json">
+{
+  "schemaVersion": 9,
+  "users": [
+    "UX-LEAD"
+  ],
+  "active": "Leon",
+  "data": {
+    "Marie": {
+      "meta": {
+        "profile": "Default",
+        "owner": "Marie Kamps",
+        "updated": "2025-10-31T08:07:44.624Z",
+        "zeroBaseline": 1,
+        "orient": {
+          "System UX (Strategisch)": 0,
+          "Design & HMI Craft (Operativ)": 0,
+          "DesignOps & Bridge (Technisch)": 0,
+          "Leadership & Governance": 0,
+          "Soft Skills": 0,
+          "User Interface (UI) Design": 0,
+          "Customer Journey Mapping": 0,
+          "Designprinzipien": 0,
+          "Grafikdesign": 0,
+          "Requirements Management": 0,
+          "User Experience (UX) Design": 0
+        },
+        "subtitle": "UX - App",
+        "activeCategory": 4,
+        "collapsed": {},
+        "scale": "0-5"
+      },
+      "categories": [
+        {
+          "name": "System UX (Strategisch)",
+          "items": [
+            {
+              "n": "Experience Vision & Roadmap",
+              "v": 0
+            },
+            {
+              "n": "Service-/Ecosystem-Mapping",
+              "v": 0
+            },
+            {
+              "n": "Information Architecture",
+              "v": 0
+            },
+            {
+              "n": "Telemetry & UX‑KPIs (Strategie)",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Design & HMI Craft (Operativ)",
+          "items": [
+            {
+              "n": "HMI‑Konzept & Flows",
+              "v": 0
+            },
+            {
+              "n": "Interaction Design",
+              "v": 0
+            },
+            {
+              "n": "UI/Visual Design",
+              "v": 0
+            },
+            {
+              "n": "Designsystem‑Reife (DSYS)",
+              "v": 0
+            },
+            {
+              "n": "Figma: Components/Tokens/Dev Mode",
+              "v": 0
+            },
+            {
+              "n": "Motion/Prototyping (ProtoPie etc.)",
+              "v": 0
+            },
+            {
+              "n": "Testing & Prototyping (HMI)",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "DesignOps & Bridge (Technisch)",
+          "items": [
+            {
+              "n": "UX Engineering (Figma→Code Bridge)",
+              "v": 0
+            },
+            {
+              "n": "DevOps CI/CD Literacy",
+              "v": 0
+            },
+            {
+              "n": "DataOps & Telemetrie Pipelines",
+              "v": 0
+            },
+            {
+              "n": "TouchGFX / Embedded UI",
+              "v": 0
+            },
+            {
+              "n": "Collab mit Elektronik (ELEC)",
+              "v": 0
+            },
+            {
+              "n": "Dual‑Track (Discovery/Delivery)",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Leadership & Governance",
+          "items": [
+            {
+              "n": "FO‑Depth (Fach‑Owner)",
+              "v": 0
+            },
+            {
+              "n": "XFT‑Score (Crossfunktionale Teams)",
+              "v": 0
+            },
+            {
+              "n": "SAFe/PI Planning (Rollen & Artefakte)",
+              "v": 0
+            },
+            {
+              "n": "Roadmap & Governance (DesignOps)",
+              "v": 0
+            },
+            {
+              "n": "Cross‑functional Delivery (OEM/Tier‑X)",
+              "v": 0
+            },
+            {
+              "n": "Stakeholder Management",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Soft Skills",
+          "items": [
+            {
+              "n": "Systemisches Denken",
+              "v": 0
+            },
+            {
+              "n": "Kommunikation (DE/EN)",
+              "v": 0
+            },
+            {
+              "n": "Storytelling & Facilitation",
+              "v": 0
+            },
+            {
+              "n": "Mentoring & Moderation",
+              "v": 0
+            },
+            {
+              "n": "Konfliktsensibilität",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "User Interface (UI) Design",
+          "items": [
+            {
+              "n": "3D UI Design",
+              "v": 0
+            },
+            {
+              "n": "Barrierefreiheit",
+              "v": 0
+            },
+            {
+              "n": "Entwicklung von UI-Komponenten",
+              "v": 0
+            },
+            {
+              "n": "Grundprinzipien des UI-Designs",
+              "v": 0
+            },
+            {
+              "n": "Ikonografie",
+              "v": 0
+            },
+            {
+              "n": "Informationsdesign",
+              "v": 0
+            },
+            {
+              "n": "Interaction Design",
+              "v": 0
+            },
+            {
+              "n": "Interaktives UI-Mockup-Design",
+              "v": 0
+            },
+            {
+              "n": "Layout und Raster",
+              "v": 0
+            },
+            {
+              "n": "Mobiles UI-Design",
+              "v": 0
+            },
+            {
+              "n": "Prototyping",
+              "v": 0
+            },
+            {
+              "n": "Touch Interface Design",
+              "v": 0
+            },
+            {
+              "n": "Typografie",
+              "v": 0
+            },
+            {
+              "n": "UI Design Patterns",
+              "v": 0
+            },
+            {
+              "n": "UI-Trends und Innovationen",
+              "v": 0
+            },
+            {
+              "n": "Voice UI Design",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Customer Journey Mapping",
+          "items": [
+            {
+              "n": "Emotion Mapping",
+              "v": 0
+            },
+            {
+              "n": "Kunden-Personas",
+              "v": 0
+            },
+            {
+              "n": "Kundenverhalten",
+              "v": 0
+            },
+            {
+              "n": "Touchpoint-Identifikation",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Designprinzipien",
+          "items": [
+            {
+              "n": "CI-Standards",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Grafikdesign",
+          "items": [
+            {
+              "n": "Bildsprache und Icons",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Requirements Management",
+          "items": [
+            {
+              "n": "Schnittstellenmanagement",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "User Experience (UX) Design",
+          "items": [
+            {
+              "n": "Mockups",
+              "v": 0
+            },
+            {
+              "n": "Storyboarding",
+              "v": 0
+            },
+            {
+              "n": "Trendresearch",
+              "v": 0
+            },
+            {
+              "n": "UX-Analyse",
+              "v": 0
+            },
+            {
+              "n": "UX-Metriken",
+              "v": 0
+            },
+            {
+              "n": "User Journey",
+              "v": 0
+            },
+            {
+              "n": "Wireframing",
+              "v": 0
+            },
+            {
+              "n": "Frontend-Grundlagen",
+              "v": 0
+            },
+            {
+              "n": "Webdesign",
+              "v": 0
+            },
+            {
+              "n": "Usability Testing",
+              "v": 0
+            },
+            {
+              "n": "UX Writing",
+              "v": 0
+            },
+            {
+              "n": "Prototyping",
+              "v": 0
+            },
+            {
+              "n": "Interaction Design",
+              "v": 0
+            }
+          ]
+        }
+      ]
+    },
+    "Leon": {
+      "meta": {
+        "profile": "Default",
+        "owner": "Leon Koonert",
+        "updated": "2025-11-04T07:46:40.073Z",
+        "zeroBaseline": 1,
+        "orient": {
+          "System UX (Strategisch)": 0,
+          "Design & HMI Craft (Operativ)": 0,
+          "DesignOps & Bridge (Technisch)": 0,
+          "Leadership & Governance": 0,
+          "Soft Skills": 0,
+          "User Interface (UI) Design)": 0,
+          "Customer Journey Mapping": 0,
+          "Designprinzipien": 0,
+          "Grafikdesign": 0,
+          "Requirements Management": 0,
+          "User Experience (UX) Design": 0,
+          "User Interface (UI) Design": 0
+        },
+        "subtitle": "UX - App",
+        "activeCategory": 1,
+        "collapsed": {},
+        "scale": "0-5"
+      },
+      "categories": [
+        {
+          "name": "System UX (Strategisch)",
+          "items": [
+            {
+              "n": "Experience Vision & Roadmap",
+              "v": 0
+            },
+            {
+              "n": "Service-/Ecosystem-Mapping",
+              "v": 0
+            },
+            {
+              "n": "Information Architecture",
+              "v": 0
+            },
+            {
+              "n": "Telemetry & UX‑KPIs (Strategie)",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Design & HMI Craft (Operativ)",
+          "items": [
+            {
+              "n": "HMI‑Konzept & Flows",
+              "v": 0
+            },
+            {
+              "n": "Interaction Design",
+              "v": 0
+            },
+            {
+              "n": "UI/Visual Design",
+              "v": 0
+            },
+            {
+              "n": "Designsystem‑Reife (DSYS)",
+              "v": 0
+            },
+            {
+              "n": "Figma: Components/Tokens/Dev Mode",
+              "v": 0
+            },
+            {
+              "n": "Motion/Prototyping (ProtoPie etc.)",
+              "v": 0
+            },
+            {
+              "n": "Testing & Prototyping (HMI)",
+              "v": 0
+            },
+            {
+              "n": "Embedded UI Patterns (TFT/DSP)",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "DesignOps & Bridge (Technisch)",
+          "items": [
+            {
+              "n": "UX Engineering (Figma→Code Bridge)",
+              "v": 0
+            },
+            {
+              "n": "DevOps CI/CD Literacy",
+              "v": 0
+            },
+            {
+              "n": "Android HMI (Jetpack Compose Demo)",
+              "v": 0
+            },
+            {
+              "n": "TouchGFX / Embedded UI",
+              "v": 0
+            },
+            {
+              "n": "Interoperabilität (Matter/Home Connect)",
+              "v": 0
+            },
+            {
+              "n": "Collab mit Elektronik (ELEC)",
+              "v": 0
+            },
+            {
+              "n": "Dual‑Track (Discovery/Delivery)",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Leadership & Governance",
+          "items": [
+            {
+              "n": "FO‑Depth (Fach‑Owner)",
+              "v": 0
+            },
+            {
+              "n": "XFT‑Score (Crossfunktionale Teams)",
+              "v": 0
+            },
+            {
+              "n": "SAFe/PI Planning (Rollen & Artefakte)",
+              "v": 0
+            },
+            {
+              "n": "Roadmap & Governance (DesignOps)",
+              "v": 0
+            },
+            {
+              "n": "Cross‑functional Delivery (OEM/Tier‑X)",
+              "v": 0
+            },
+            {
+              "n": "Stakeholder Management",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Soft Skills",
+          "items": [
+            {
+              "n": "Systemisches Denken",
+              "v": 0
+            },
+            {
+              "n": "Kommunikation (DE/EN)",
+              "v": 0
+            },
+            {
+              "n": "Storytelling & Facilitation",
+              "v": 0
+            },
+            {
+              "n": "Mentoring & Moderation",
+              "v": 0
+            },
+            {
+              "n": "Konfliktsensibilität",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "User Interface (UI) Design",
+          "items": [
+            {
+              "n": "3D UI Design",
+              "v": 0
+            },
+            {
+              "n": "Barrierefreiheit",
+              "v": 0
+            },
+            {
+              "n": "Entwicklung von UI-Komponenten",
+              "v": 0
+            },
+            {
+              "n": "Grundprinzipien des UI-Designs",
+              "v": 0
+            },
+            {
+              "n": "Ikonografie",
+              "v": 0
+            },
+            {
+              "n": "Informationsdesign",
+              "v": 0
+            },
+            {
+              "n": "Interaction Design",
+              "v": 0
+            },
+            {
+              "n": "Interaktives UI-Mockup-Design",
+              "v": 0
+            },
+            {
+              "n": "Layout und Raster",
+              "v": 0
+            },
+            {
+              "n": "Mobiles UI-Design",
+              "v": 0
+            },
+            {
+              "n": "Prototyping",
+              "v": 0
+            },
+            {
+              "n": "Touch Interface Design",
+              "v": 0
+            },
+            {
+              "n": "Typografie",
+              "v": 0
+            },
+            {
+              "n": "UI Design Patterns",
+              "v": 0
+            },
+            {
+              "n": "UI-Trends und Innovationen",
+              "v": 0
+            },
+            {
+              "n": "Voice UI Design",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Customer Journey Mapping",
+          "items": [
+            {
+              "n": "Emotion Mapping",
+              "v": 0
+            },
+            {
+              "n": "Kunden-Personas",
+              "v": 0
+            },
+            {
+              "n": "Kundenverhalten",
+              "v": 0
+            },
+            {
+              "n": "Touchpoint-Identifikation",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Designprinzipien",
+          "items": [
+            {
+              "n": "CI-Standards",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Grafikdesign",
+          "items": [
+            {
+              "n": "Bildsprache und Icons",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Requirements Management",
+          "items": [
+            {
+              "n": "Schnittstellenmanagement",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "User Experience (UX) Design",
+          "items": [
+            {
+              "n": "Mockups",
+              "v": 0
+            },
+            {
+              "n": "Storyboarding",
+              "v": 0
+            },
+            {
+              "n": "Trendresearch",
+              "v": 0
+            },
+            {
+              "n": "UX-Analyse",
+              "v": 0
+            },
+            {
+              "n": "UX-Metriken",
+              "v": 0
+            },
+            {
+              "n": "User Journey",
+              "v": 0
+            },
+            {
+              "n": "Wireframing",
+              "v": 0
+            },
+            {
+              "n": "Frontend-Grundlagen",
+              "v": 0
+            },
+            {
+              "n": "Webdesign",
+              "v": 0
+            },
+            {
+              "n": "Usability Testing",
+              "v": 0
+            },
+            {
+              "n": "UX Writing",
+              "v": 0
+            },
+            {
+              "n": "Prototyping",
+              "v": 0
+            },
+            {
+              "n": "Interaction Design",
+              "v": 0
+            }
+          ]
+        }
+      ]
+    },
+    "Christian": {
+      "meta": {
+        "profile": "Default",
+        "owner": "Christian Hametner",
+        "updated": "2025-11-21T13:18:15.723Z",
+        "zeroBaseline": 1,
+        "orient": {
+          "System UX (Strategisch)": 0,
+          "Design & HMI Craft (Operativ)": 0,
+          "DesignOps & Bridge (Technisch)": 0,
+          "Leadership & Governance": 0,
+          "Soft Skills": 0,
+          "User Interface (UI) Design": 0,
+          "Customer Journey Mapping": 0,
+          "Designprinzipien": 0,
+          "Grafikdesign": 0,
+          "Requirements Management": 0,
+          "User Experience (UX) Design": 0
+        },
+        "activeCategory": 0,
+        "subtitle": "UX - HMI",
+        "collapsed": {},
+        "scale": "0-5"
+      },
+      "categories": [
+        {
+          "name": "System UX (Strategisch)",
+          "items": [
+            {
+              "n": "Experience Vision & Roadmap",
+              "v": 0
+            },
+            {
+              "n": "Service-/Ecosystem-Mapping",
+              "v": 0
+            },
+            {
+              "n": "Information Architecture",
+              "v": 0
+            },
+            {
+              "n": "Telemetry & UX‑KPIs (Strategie)",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Design & HMI Craft (Operativ)",
+          "items": [
+            {
+              "n": "HMI‑Konzept & Flows",
+              "v": 2
+            },
+            {
+              "n": "Interaction Design",
+              "v": 3
+            },
+            {
+              "n": "UI/Visual Design",
+              "v": 1
+            },
+            {
+              "n": "Designsystem‑Reife (DSYS)",
+              "v": 1
+            },
+            {
+              "n": "Figma: Components/Tokens/Dev Mode",
+              "v": 1
+            },
+            {
+              "n": "Motion/Prototyping (ProtoPie etc.)",
+              "v": 3
+            },
+            {
+              "n": "Testing & Prototyping (HMI)",
+              "v": 3
+            },
+            {
+              "n": "3D Asset Pipeline / PBR",
+              "v": 4
+            }
+          ]
+        },
+        {
+          "name": "DesignOps & Bridge (Technisch)",
+          "items": [
+            {
+              "n": "UX Engineering (Figma→Code Bridge)",
+              "v": 1
+            },
+            {
+              "n": "DevOps CI/CD Literacy",
+              "v": 1
+            },
+            {
+              "n": "TouchGFX / Embedded UI",
+              "v": 0
+            },
+            {
+              "n": "Collab mit Elektronik (ELEC)",
+              "v": 2
+            },
+            {
+              "n": "Dual‑Track (Discovery/Delivery)",
+              "v": 2
+            }
+          ]
+        },
+        {
+          "name": "Leadership & Governance",
+          "items": [
+            {
+              "n": "FO‑Depth (Fach‑Owner)",
+              "v": 2
+            },
+            {
+              "n": "XFT‑Score (Crossfunktionale Teams)",
+              "v": 2
+            },
+            {
+              "n": "SAFe/PI Planning (Rollen & Artefakte)",
+              "v": 2
+            },
+            {
+              "n": "Roadmap & Governance (DesignOps)",
+              "v": 1
+            },
+            {
+              "n": "Stakeholder Management",
+              "v": 1
+            }
+          ]
+        },
+        {
+          "name": "Soft Skills",
+          "items": [
+            {
+              "n": "Systemisches Denken",
+              "v": 2
+            },
+            {
+              "n": "Kommunikation (DE/EN)",
+              "v": 4
+            },
+            {
+              "n": "Storytelling & Facilitation",
+              "v": 1
+            },
+            {
+              "n": "Mentoring & Moderation",
+              "v": 1
+            },
+            {
+              "n": "Konfliktsensibilität",
+              "v": 1
+            }
+          ]
+        },
+        {
+          "name": "User Interface (UI) Design",
+          "items": [
+            {
+              "n": "3D UI Design",
+              "v": 3
+            },
+            {
+              "n": "Barrierefreiheit",
+              "v": 1
+            },
+            {
+              "n": "Entwicklung von UI-Komponenten",
+              "v": 2
+            },
+            {
+              "n": "Grundprinzipien des UI-Designs",
+              "v": 2
+            },
+            {
+              "n": "Ikonografie",
+              "v": 1
+            },
+            {
+              "n": "Informationsdesign",
+              "v": 2
+            },
+            {
+              "n": "Interaction Design",
+              "v": 3
+            },
+            {
+              "n": "Interaktives UI-Mockup-Design",
+              "v": 4
+            },
+            {
+              "n": "Layout und Raster",
+              "v": 1
+            },
+            {
+              "n": "Mobiles UI-Design",
+              "v": 1
+            },
+            {
+              "n": "Prototyping",
+              "v": 2
+            },
+            {
+              "n": "Touch Interface Design",
+              "v": 3
+            },
+            {
+              "n": "Typografie",
+              "v": 1
+            },
+            {
+              "n": "UI Design Patterns",
+              "v": 1
+            },
+            {
+              "n": "UI-Trends und Innovationen",
+              "v": 3
+            },
+            {
+              "n": "Voice UI Design",
+              "v": 1
+            }
+          ]
+        },
+        {
+          "name": "Customer Journey Mapping",
+          "items": [
+            {
+              "n": "Emotion Mapping",
+              "v": 2
+            },
+            {
+              "n": "Kunden-Personas",
+              "v": 3
+            },
+            {
+              "n": "Kundenverhalten",
+              "v": 1
+            },
+            {
+              "n": "Touchpoint-Identifikation",
+              "v": 1
+            }
+          ]
+        },
+        {
+          "name": "Designprinzipien",
+          "items": [
+            {
+              "n": "CI-Standards",
+              "v": 2
+            }
+          ]
+        },
+        {
+          "name": "Grafikdesign",
+          "items": [
+            {
+              "n": "Bildsprache und Icons",
+              "v": 1
+            }
+          ]
+        },
+        {
+          "name": "Requirements Management",
+          "items": [
+            {
+              "n": "Schnittstellenmanagement",
+              "v": 1
+            }
+          ]
+        },
+        {
+          "name": "User Experience (UX) Design",
+          "items": [
+            {
+              "n": "Mockups",
+              "v": 2
+            },
+            {
+              "n": "Storyboarding",
+              "v": 1
+            },
+            {
+              "n": "Trendresearch",
+              "v": 4
+            },
+            {
+              "n": "UX-Analyse",
+              "v": 1
+            },
+            {
+              "n": "UX-Metriken",
+              "v": 1
+            },
+            {
+              "n": "User Journey",
+              "v": 3
+            },
+            {
+              "n": "Wireframing",
+              "v": 2
+            },
+            {
+              "n": "Frontend-Grundlagen",
+              "v": 1
+            },
+            {
+              "n": "Webdesign",
+              "v": 1
+            },
+            {
+              "n": "Usability Testing",
+              "v": 2
+            },
+            {
+              "n": "UX Writing",
+              "v": 2
+            },
+            {
+              "n": "Prototyping",
+              "v": 3
+            },
+            {
+              "n": "Interaction Design",
+              "v": 3
+            }
+          ]
+        }
+      ]
+    },
+    "Anne": {
+      "meta": {
+        "profile": "Default",
+        "owner": "Anne Walter",
+        "updated": "2025-11-04T08:44:37.345Z",
+        "zeroBaseline": 1,
+        "orient": {
+          "System UX (Strategisch)": 0,
+          "Design & HMI Craft (Operativ)": 0,
+          "DesignOps & Bridge (Technisch)": 0,
+          "Leadership & Governance": 0,
+          "Soft Skills": 0,
+          "User Interface (UI) Design": 0,
+          "Customer Journey Mapping": 0,
+          "Designprinzipien": 0,
+          "Grafikdesign": 0,
+          "Requirements Management": 0,
+          "User Experience (UX) Design": 0
+        },
+        "subtitle": "UX - HMI",
+        "activeCategory": 5,
+        "collapsed": {},
+        "scale": "0-5"
+      },
+      "categories": [
+        {
+          "name": "System UX (Strategisch)",
+          "items": [
+            {
+              "n": "Experience Vision & Roadmap",
+              "v": 0
+            },
+            {
+              "n": "Service-/Ecosystem-Mapping",
+              "v": 0
+            },
+            {
+              "n": "Information Architecture",
+              "v": 0
+            },
+            {
+              "n": "Partner‑Governance (Make/Buy)",
+              "v": 0
+            },
+            {
+              "n": "Telemetry & UX‑KPIs (Strategie)",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Design & HMI Craft (Operativ)",
+          "items": [
+            {
+              "n": "HMI‑Konzept & Flows",
+              "v": 0
+            },
+            {
+              "n": "Interaction Design",
+              "v": 0
+            },
+            {
+              "n": "UI/Visual Design",
+              "v": 0
+            },
+            {
+              "n": "Designsystem‑Reife (DSYS)",
+              "v": 0
+            },
+            {
+              "n": "Figma: Components/Tokens/Dev Mode",
+              "v": 0
+            },
+            {
+              "n": "Motion/Prototyping (ProtoPie etc.)",
+              "v": 0
+            },
+            {
+              "n": "Testing & Prototyping (HMI)",
+              "v": 0
+            },
+            {
+              "n": "3D Asset Pipeline / PBR",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "DesignOps & Bridge (Technisch)",
+          "items": [
+            {
+              "n": "UX Engineering (Figma→Code Bridge)",
+              "v": 0
+            },
+            {
+              "n": "DevOps CI/CD Literacy",
+              "v": 0
+            },
+            {
+              "n": "Android HMI (Jetpack Compose Demo)",
+              "v": 0
+            },
+            {
+              "n": "TouchGFX / Embedded UI",
+              "v": 0
+            },
+            {
+              "n": "Interoperabilität (Matter/Home Connect)",
+              "v": 0
+            },
+            {
+              "n": "Collab mit Elektronik (ELEC)",
+              "v": 0
+            },
+            {
+              "n": "Dual‑Track (Discovery/Delivery)",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Leadership & Governance",
+          "items": [
+            {
+              "n": "FO‑Depth (Fach‑Owner)",
+              "v": 0
+            },
+            {
+              "n": "XFT‑Score (Crossfunktionale Teams)",
+              "v": 0
+            },
+            {
+              "n": "SAFe/PI Planning (Rollen & Artefakte)",
+              "v": 0
+            },
+            {
+              "n": "Roadmap & Governance (DesignOps)",
+              "v": 0
+            },
+            {
+              "n": "Cross‑functional Delivery (OEM/Tier‑X)",
+              "v": 0
+            },
+            {
+              "n": "Stakeholder Management",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Soft Skills",
+          "items": [
+            {
+              "n": "Systemisches Denken",
+              "v": 0
+            },
+            {
+              "n": "Kommunikation (DE/EN)",
+              "v": 0
+            },
+            {
+              "n": "Storytelling & Facilitation",
+              "v": 0
+            },
+            {
+              "n": "Mentoring & Moderation",
+              "v": 0
+            },
+            {
+              "n": "Konfliktsensibilität",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "User Interface (UI) Design",
+          "items": [
+            {
+              "n": "3D UI Design",
+              "v": 0
+            },
+            {
+              "n": "Barrierefreiheit",
+              "v": 0
+            },
+            {
+              "n": "Entwicklung von UI-Komponenten",
+              "v": 0
+            },
+            {
+              "n": "Grundprinzipien des UI-Designs",
+              "v": 0
+            },
+            {
+              "n": "Ikonografie",
+              "v": 0
+            },
+            {
+              "n": "Informationsdesign",
+              "v": 0
+            },
+            {
+              "n": "Interaction Design",
+              "v": 0
+            },
+            {
+              "n": "Interaktives UI-Mockup-Design",
+              "v": 0
+            },
+            {
+              "n": "Layout und Raster",
+              "v": 0
+            },
+            {
+              "n": "Mobiles UI-Design",
+              "v": 0
+            },
+            {
+              "n": "Prototyping",
+              "v": 0
+            },
+            {
+              "n": "Touch Interface Design",
+              "v": 0
+            },
+            {
+              "n": "Typografie",
+              "v": 0
+            },
+            {
+              "n": "UI Design Patterns",
+              "v": 0
+            },
+            {
+              "n": "UI-Trends und Innovationen",
+              "v": 0
+            },
+            {
+              "n": "Voice UI Design",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Customer Journey Mapping",
+          "items": [
+            {
+              "n": "Emotion Mapping",
+              "v": 0
+            },
+            {
+              "n": "Kunden-Personas",
+              "v": 0
+            },
+            {
+              "n": "Kundenverhalten",
+              "v": 0
+            },
+            {
+              "n": "Touchpoint-Identifikation",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Designprinzipien",
+          "items": [
+            {
+              "n": "CI-Standards",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Grafikdesign",
+          "items": [
+            {
+              "n": "Bildsprache und Icons",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Requirements Management",
+          "items": [
+            {
+              "n": "Schnittstellenmanagement",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "User Experience (UX) Design",
+          "items": [
+            {
+              "n": "Mockups",
+              "v": 0
+            },
+            {
+              "n": "Storyboarding",
+              "v": 0
+            },
+            {
+              "n": "Trendresearch",
+              "v": 0
+            },
+            {
+              "n": "UX-Analyse",
+              "v": 0
+            },
+            {
+              "n": "UX-Metriken",
+              "v": 0
+            },
+            {
+              "n": "User Journey",
+              "v": 0
+            },
+            {
+              "n": "Wireframing",
+              "v": 0
+            },
+            {
+              "n": "Frontend-Grundlagen",
+              "v": 0
+            },
+            {
+              "n": "Webdesign",
+              "v": 0
+            },
+            {
+              "n": "Usability Testing",
+              "v": 0
+            },
+            {
+              "n": "UX Writing",
+              "v": 0
+            },
+            {
+              "n": "Prototyping",
+              "v": 0
+            },
+            {
+              "n": "Interaction Design",
+              "v": 0
+            }
+          ]
+        }
+      ]
+    },
+    "Wunschkandidat": {
+      "meta": {
+        "profile": "Default",
+        "owner": "Wunschkandidat",
+        "updated": "2025-11-21T13:18:15.723Z",
+        "zeroBaseline": 1,
+        "orient": {
+          "Soft Skills": 0,
+          "User Interface (UI) Design": 0,
+          "Customer Journey Mapping": 0,
+          "Designprinzipien": 0,
+          "Grafikdesign": 0,
+          "Requirements Management": 0,
+          "User Experience (UX) Design": 0
+        },
+        "activeCategory": 0,
+        "collapsed": {},
+        "subtitle": "Wollmilchsau (muss keine Eier legen können)",
+        "scale": "0-5"
+      },
+      "categories": [
+        {
+          "name": "Soft Skills",
+          "items": [
+            {
+              "n": "Systemisches Denken",
+              "v": 0
+            },
+            {
+              "n": "Kommunikation (DE/EN)",
+              "v": 0
+            },
+            {
+              "n": "Storytelling & Facilitation",
+              "v": 0
+            },
+            {
+              "n": "Mentoring & Moderation",
+              "v": 0
+            },
+            {
+              "n": "Konfliktsensibilität",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "User Interface (UI) Design",
+          "items": [
+            {
+              "n": "3D UI Design",
+              "v": 0
+            },
+            {
+              "n": "Barrierefreiheit",
+              "v": 2
+            },
+            {
+              "n": "Entwicklung von UI-Komponenten",
+              "v": 2
+            },
+            {
+              "n": "Grundprinzipien des UI-Designs",
+              "v": 5
+            },
+            {
+              "n": "Ikonografie",
+              "v": 1
+            },
+            {
+              "n": "Informationsdesign",
+              "v": 4
+            },
+            {
+              "n": "Interaction Design",
+              "v": 4
+            },
+            {
+              "n": "Interaktives UI-Mockup-Design",
+              "v": 1
+            },
+            {
+              "n": "Layout und Raster",
+              "v": 5
+            },
+            {
+              "n": "Mobiles UI-Design",
+              "v": 2
+            },
+            {
+              "n": "Prototyping",
+              "v": 4
+            },
+            {
+              "n": "UI-Trends und Innovationen",
+              "v": 2
+            },
+            {
+              "n": "Voice UI Design",
+              "v": 5
+            }
+          ]
+        },
+        {
+          "name": "Customer Journey Mapping",
+          "items": [
+            {
+              "n": "Emotion Mapping",
+              "v": 1
+            },
+            {
+              "n": "Kunden-Personas",
+              "v": 1
+            },
+            {
+              "n": "Kundenverhalten",
+              "v": 2
+            },
+            {
+              "n": "Touchpoint-Identifikation",
+              "v": 2
+            }
+          ]
+        },
+        {
+          "name": "Designprinzipien",
+          "items": [
+            {
+              "n": "CI-Standards",
+              "v": 1
+            }
+          ]
+        },
+        {
+          "name": "User Experience (UX) Design",
+          "items": [
+            {
+              "n": "Trendresearch",
+              "v": 2
+            },
+            {
+              "n": "UX-Analyse",
+              "v": 4
+            },
+            {
+              "n": "UX-Metriken",
+              "v": 4
+            },
+            {
+              "n": "User Journey",
+              "v": 1
+            },
+            {
+              "n": "Wireframing",
+              "v": 4
+            },
+            {
+              "n": "Frontend-Grundlagen",
+              "v": 5
+            },
+            {
+              "n": "Webdesign",
+              "v": 1
+            },
+            {
+              "n": "Usability Testing",
+              "v": 4
+            },
+            {
+              "n": "UX Writing",
+              "v": 5
+            },
+            {
+              "n": "Interaction Design",
+              "v": 5
+            }
+          ]
+        }
+      ]
+    },
+    "UX-LEAD": {
+      "meta": {
+        "profile": "Default",
+        "owner": "UX LEAD",
+        "updated": "2025-11-21T13:18:15.723Z",
+        "zeroBaseline": 1,
+        "orient": {
+          "System UX (Strategisch)": 0,
+          "Design & HMI Craft (Operativ)": 0,
+          "DesignOps & Bridge (Technisch)": 0,
+          "Leadership & Governance": 0,
+          "Soft Skills": 0
+        },
+        "activeCategory": 5,
+        "collapsed": {},
+        "subtitle": "Senior UX Consultant · Strategic Designer",
+        "scale": "0-5"
+      },
+      "categories": [
+        {
+          "name": "System UX (Strategisch)",
+          "items": [
+            {
+              "n": "Experience Vision & Roadmap",
+              "v": 4
+            },
+            {
+              "n": "Service-/Ecosystem-Mapping",
+              "v": 5
+            },
+            {
+              "n": "Information Architecture",
+              "v": 5
+            },
+            {
+              "n": "CPLA‑Literacy & Mapping",
+              "v": 5
+            },
+            {
+              "n": "E²X Orchestrierung (Device⇄App⇄Cloud)",
+              "v": 5
+            },
+            {
+              "n": "CR/Freeze‑Governance",
+              "v": 5
+            },
+            {
+              "n": "Partner‑Governance (Make/Buy)",
+              "v": 2
+            },
+            {
+              "n": "Telemetry & UX‑KPIs (Strategie)",
+              "v": 5
+            }
+          ]
+        },
+        {
+          "name": "Design & HMI Craft (Operativ)",
+          "items": [
+            {
+              "n": "HMI‑Konzept & Flows",
+              "v": 1
+            },
+            {
+              "n": "Interaction Design",
+              "v": 1
+            },
+            {
+              "n": "UI/Visual Design",
+              "v": 1
+            },
+            {
+              "n": "Designsystem‑Reife (DSYS)",
+              "v": 2
+            }
+          ]
+        },
+        {
+          "name": "DesignOps & Bridge (Technisch)",
+          "items": [
+            {
+              "n": "UX Engineering (Figma→Code Bridge)",
+              "v": 1
+            },
+            {
+              "n": "DevOps CI/CD Literacy",
+              "v": 1
+            },
+            {
+              "n": "DataOps & Telemetrie Pipelines",
+              "v": 1
+            },
+            {
+              "n": "Collab mit Elektronik (ELEC)",
+              "v": 3
+            },
+            {
+              "n": "Dual‑Track (Discovery/Delivery)",
+              "v": 3
+            }
+          ]
+        },
+        {
+          "name": "Leadership & Governance",
+          "items": [
+            {
+              "n": "FO‑Depth (Fach‑Owner)",
+              "v": 2
+            },
+            {
+              "n": "SAFe/PI Planning (Rollen & Artefakte)",
+              "v": 0
+            },
+            {
+              "n": "Roadmap & Governance (DesignOps)",
+              "v": 4
+            },
+            {
+              "n": "Cross‑functional Delivery (OEM/Tier‑X)",
+              "v": 3
+            },
+            {
+              "n": "Stakeholder Management",
+              "v": 4
+            }
+          ]
+        },
+        {
+          "name": "Soft Skills",
+          "items": [
+            {
+              "n": "Systemisches Denken",
+              "v": 5
+            },
+            {
+              "n": "Kommunikation (DE/EN)",
+              "v": 5
+            },
+            {
+              "n": "Storytelling & Facilitation",
+              "v": 4
+            },
+            {
+              "n": "Mentoring & Moderation",
+              "v": 4
+            },
+            {
+              "n": "Konfliktsensibilität",
+              "v": 5
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "peer": {},
+  "teamFilter": null,
+  "refs": {
+    "Junior": {
+      "System UX (Strategisch)::Experience Vision & Roadmap": 1,
+      "System UX (Strategisch)::Service-/Ecosystem-Mapping": 1,
+      "System UX (Strategisch)::Information Architecture": 1,
+      "System UX (Strategisch)::Telemetry & UX‑KPIs (Strategie)": 1,
+      "Design & HMI Craft (Operativ)::HMI‑Konzept & Flows": 1,
+      "Design & HMI Craft (Operativ)::Interaction Design": 1,
+      "Design & HMI Craft (Operativ)::UI/Visual Design": 1,
+      "Design & HMI Craft (Operativ)::Designsystem‑Reife (DSYS)": 1,
+      "Design & HMI Craft (Operativ)::Figma: Components/Tokens/Dev Mode": 1,
+      "Design & HMI Craft (Operativ)::Motion/Prototyping (ProtoPie etc.)": 1,
+      "Design & HMI Craft (Operativ)::Testing & Prototyping (HMI)": 1,
+      "DesignOps & Bridge (Technisch)::UX Engineering (Figma→Code Bridge)": 1,
+      "DesignOps & Bridge (Technisch)::DevOps CI/CD Literacy": 1,
+      "DesignOps & Bridge (Technisch)::DataOps & Telemetrie Pipelines": 1,
+      "DesignOps & Bridge (Technisch)::TouchGFX / Embedded UI": 1,
+      "DesignOps & Bridge (Technisch)::Collab mit Elektronik (ELEC)": 1,
+      "DesignOps & Bridge (Technisch)::Dual‑Track (Discovery/Delivery)": 1,
+      "Leadership & Governance::FO‑Depth (Fach‑Owner)": 1,
+      "Leadership & Governance::XFT‑Score (Crossfunktionale Teams)": 1,
+      "Leadership & Governance::SAFe/PI Planning (Rollen & Artefakte)": 1,
+      "Leadership & Governance::Roadmap & Governance (DesignOps)": 1,
+      "Leadership & Governance::Cross‑functional Delivery (OEM/Tier‑X)": 1,
+      "Leadership & Governance::Stakeholder Management": 1,
+      "Soft Skills::Systemisches Denken": 1,
+      "Soft Skills::Kommunikation (DE/EN)": 1,
+      "Soft Skills::Storytelling & Facilitation": 1,
+      "Soft Skills::Mentoring & Moderation": 1,
+      "Soft Skills::Konfliktsensibilität": 1,
+      "User Interface (UI) Design::3D UI Design": 1,
+      "User Interface (UI) Design::Barrierefreiheit": 1,
+      "User Interface (UI) Design::Entwicklung von UI-Komponenten": 1,
+      "User Interface (UI) Design::Grundprinzipien des UI-Designs": 1,
+      "User Interface (UI) Design::Ikonografie": 1,
+      "User Interface (UI) Design::Informationsdesign": 1,
+      "User Interface (UI) Design::Interaction Design": 1,
+      "User Interface (UI) Design::Interaktives UI-Mockup-Design": 1,
+      "User Interface (UI) Design::Layout und Raster": 1,
+      "User Interface (UI) Design::Mobiles UI-Design": 1,
+      "User Interface (UI) Design::Prototyping": 1,
+      "User Interface (UI) Design::Touch Interface Design": 1,
+      "User Interface (UI) Design::Typografie": 1,
+      "User Interface (UI) Design::UI Design Patterns": 1,
+      "User Interface (UI) Design::UI-Trends und Innovationen": 1,
+      "User Interface (UI) Design::Voice UI Design": 1,
+      "Customer Journey Mapping::Emotion Mapping": 1,
+      "Customer Journey Mapping::Kunden-Personas": 1,
+      "Customer Journey Mapping::Kundenverhalten": 1,
+      "Customer Journey Mapping::Touchpoint-Identifikation": 1,
+      "Designprinzipien::CI-Standards": 1,
+      "Grafikdesign::Bildsprache und Icons": 1,
+      "Requirements Management::Schnittstellenmanagement": 1,
+      "User Experience (UX) Design::Mockups": 1,
+      "User Experience (UX) Design::Storyboarding": 1,
+      "User Experience (UX) Design::Trendresearch": 1,
+      "User Experience (UX) Design::UX-Analyse": 1,
+      "User Experience (UX) Design::UX-Metriken": 1,
+      "User Experience (UX) Design::User Journey": 1,
+      "User Experience (UX) Design::Wireframing": 1,
+      "User Experience (UX) Design::Frontend-Grundlagen": 1,
+      "User Experience (UX) Design::Webdesign": 1,
+      "User Experience (UX) Design::Usability Testing": 1,
+      "User Experience (UX) Design::UX Writing": 1,
+      "User Experience (UX) Design::Prototyping": 1,
+      "User Experience (UX) Design::Interaction Design": 1,
+      "Design & HMI Craft (Operativ)::Embedded UI Patterns (TFT/DSP)": 1,
+      "DesignOps & Bridge (Technisch)::Android HMI (Jetpack Compose Demo)": 1,
+      "DesignOps & Bridge (Technisch)::Interoperabilität (Matter/Home Connect)": 1,
+      "Design & HMI Craft (Operativ)::3D Asset Pipeline / PBR": 1,
+      "System UX (Strategisch)::Partner‑Governance (Make/Buy)": 1,
+      "System UX (Strategisch)::CPLA‑Literacy & Mapping": 1,
+      "System UX (Strategisch)::E²X Orchestrierung (Device⇄App⇄Cloud)": 1,
+      "System UX (Strategisch)::CR/Freeze‑Governance": 1,
+      "System UX (Strategisch)::Konzeptvorlauf (Lead Time)": 1,
+      "Design & HMI Craft (Operativ)::Unreal Engine (HMI/Taskforce)": 1,
+      "Design & HMI Craft (Operativ)::Mapbox 3D / Navigation Layer": 1,
+      "DesignOps & Bridge (Technisch)::JSON/YAML & Toolchain": 1,
+      "DesignOps & Bridge (Technisch)::VSS / COVESA Signals": 1
+    },
+    "Professional": {
+      "System UX (Strategisch)::Experience Vision & Roadmap": 3,
+      "System UX (Strategisch)::Service-/Ecosystem-Mapping": 3,
+      "System UX (Strategisch)::Information Architecture": 3,
+      "System UX (Strategisch)::Telemetry & UX‑KPIs (Strategie)": 3,
+      "Design & HMI Craft (Operativ)::HMI‑Konzept & Flows": 3,
+      "Design & HMI Craft (Operativ)::Interaction Design": 3,
+      "Design & HMI Craft (Operativ)::UI/Visual Design": 3,
+      "Design & HMI Craft (Operativ)::Designsystem‑Reife (DSYS)": 3,
+      "Design & HMI Craft (Operativ)::Figma: Components/Tokens/Dev Mode": 3,
+      "Design & HMI Craft (Operativ)::Motion/Prototyping (ProtoPie etc.)": 3,
+      "Design & HMI Craft (Operativ)::Testing & Prototyping (HMI)": 3,
+      "DesignOps & Bridge (Technisch)::UX Engineering (Figma→Code Bridge)": 3,
+      "DesignOps & Bridge (Technisch)::DevOps CI/CD Literacy": 3,
+      "DesignOps & Bridge (Technisch)::DataOps & Telemetrie Pipelines": 3,
+      "DesignOps & Bridge (Technisch)::TouchGFX / Embedded UI": 3,
+      "DesignOps & Bridge (Technisch)::Collab mit Elektronik (ELEC)": 3,
+      "DesignOps & Bridge (Technisch)::Dual‑Track (Discovery/Delivery)": 3,
+      "Leadership & Governance::FO‑Depth (Fach‑Owner)": 3,
+      "Leadership & Governance::XFT‑Score (Crossfunktionale Teams)": 3,
+      "Leadership & Governance::SAFe/PI Planning (Rollen & Artefakte)": 3,
+      "Leadership & Governance::Roadmap & Governance (DesignOps)": 3,
+      "Leadership & Governance::Cross‑functional Delivery (OEM/Tier‑X)": 3,
+      "Leadership & Governance::Stakeholder Management": 3,
+      "Soft Skills::Systemisches Denken": 3,
+      "Soft Skills::Kommunikation (DE/EN)": 3,
+      "Soft Skills::Storytelling & Facilitation": 3,
+      "Soft Skills::Mentoring & Moderation": 3,
+      "Soft Skills::Konfliktsensibilität": 3,
+      "User Interface (UI) Design::3D UI Design": 3,
+      "User Interface (UI) Design::Barrierefreiheit": 3,
+      "User Interface (UI) Design::Entwicklung von UI-Komponenten": 3,
+      "User Interface (UI) Design::Grundprinzipien des UI-Designs": 3,
+      "User Interface (UI) Design::Ikonografie": 3,
+      "User Interface (UI) Design::Informationsdesign": 3,
+      "User Interface (UI) Design::Interaction Design": 3,
+      "User Interface (UI) Design::Interaktives UI-Mockup-Design": 3,
+      "User Interface (UI) Design::Layout und Raster": 3,
+      "User Interface (UI) Design::Mobiles UI-Design": 3,
+      "User Interface (UI) Design::Prototyping": 3,
+      "User Interface (UI) Design::Touch Interface Design": 3,
+      "User Interface (UI) Design::Typografie": 3,
+      "User Interface (UI) Design::UI Design Patterns": 3,
+      "User Interface (UI) Design::UI-Trends und Innovationen": 3,
+      "User Interface (UI) Design::Voice UI Design": 3,
+      "Customer Journey Mapping::Emotion Mapping": 3,
+      "Customer Journey Mapping::Kunden-Personas": 3,
+      "Customer Journey Mapping::Kundenverhalten": 3,
+      "Customer Journey Mapping::Touchpoint-Identifikation": 3,
+      "Designprinzipien::CI-Standards": 3,
+      "Grafikdesign::Bildsprache und Icons": 3,
+      "Requirements Management::Schnittstellenmanagement": 3,
+      "User Experience (UX) Design::Mockups": 3,
+      "User Experience (UX) Design::Storyboarding": 3,
+      "User Experience (UX) Design::Trendresearch": 3,
+      "User Experience (UX) Design::UX-Analyse": 3,
+      "User Experience (UX) Design::UX-Metriken": 3,
+      "User Experience (UX) Design::User Journey": 3,
+      "User Experience (UX) Design::Wireframing": 3,
+      "User Experience (UX) Design::Frontend-Grundlagen": 3,
+      "User Experience (UX) Design::Webdesign": 3,
+      "User Experience (UX) Design::Usability Testing": 3,
+      "User Experience (UX) Design::UX Writing": 3,
+      "User Experience (UX) Design::Prototyping": 3,
+      "User Experience (UX) Design::Interaction Design": 3,
+      "Design & HMI Craft (Operativ)::Embedded UI Patterns (TFT/DSP)": 3,
+      "DesignOps & Bridge (Technisch)::Android HMI (Jetpack Compose Demo)": 3,
+      "DesignOps & Bridge (Technisch)::Interoperabilität (Matter/Home Connect)": 3,
+      "Design & HMI Craft (Operativ)::3D Asset Pipeline / PBR": 3,
+      "System UX (Strategisch)::Partner‑Governance (Make/Buy)": 3,
+      "System UX (Strategisch)::CPLA‑Literacy & Mapping": 3,
+      "System UX (Strategisch)::E²X Orchestrierung (Device⇄App⇄Cloud)": 3,
+      "System UX (Strategisch)::CR/Freeze‑Governance": 3,
+      "System UX (Strategisch)::Konzeptvorlauf (Lead Time)": 3,
+      "Design & HMI Craft (Operativ)::Unreal Engine (HMI/Taskforce)": 3,
+      "Design & HMI Craft (Operativ)::Mapbox 3D / Navigation Layer": 3,
+      "DesignOps & Bridge (Technisch)::JSON/YAML & Toolchain": 3,
+      "DesignOps & Bridge (Technisch)::VSS / COVESA Signals": 3
+    },
+    "Senior": {
+      "System UX (Strategisch)::Experience Vision & Roadmap": 4,
+      "System UX (Strategisch)::Service-/Ecosystem-Mapping": 4,
+      "System UX (Strategisch)::Information Architecture": 4,
+      "System UX (Strategisch)::Telemetry & UX‑KPIs (Strategie)": 4,
+      "Design & HMI Craft (Operativ)::HMI‑Konzept & Flows": 4,
+      "Design & HMI Craft (Operativ)::Interaction Design": 4,
+      "Design & HMI Craft (Operativ)::UI/Visual Design": 4,
+      "Design & HMI Craft (Operativ)::Designsystem‑Reife (DSYS)": 4,
+      "Design & HMI Craft (Operativ)::Figma: Components/Tokens/Dev Mode": 4,
+      "Design & HMI Craft (Operativ)::Motion/Prototyping (ProtoPie etc.)": 4,
+      "Design & HMI Craft (Operativ)::Testing & Prototyping (HMI)": 4,
+      "DesignOps & Bridge (Technisch)::UX Engineering (Figma→Code Bridge)": 4,
+      "DesignOps & Bridge (Technisch)::DevOps CI/CD Literacy": 4,
+      "DesignOps & Bridge (Technisch)::DataOps & Telemetrie Pipelines": 4,
+      "DesignOps & Bridge (Technisch)::TouchGFX / Embedded UI": 4,
+      "DesignOps & Bridge (Technisch)::Collab mit Elektronik (ELEC)": 4,
+      "DesignOps & Bridge (Technisch)::Dual‑Track (Discovery/Delivery)": 4,
+      "Leadership & Governance::FO‑Depth (Fach‑Owner)": 4,
+      "Leadership & Governance::XFT‑Score (Crossfunktionale Teams)": 4,
+      "Leadership & Governance::SAFe/PI Planning (Rollen & Artefakte)": 4,
+      "Leadership & Governance::Roadmap & Governance (DesignOps)": 4,
+      "Leadership & Governance::Cross‑functional Delivery (OEM/Tier‑X)": 4,
+      "Leadership & Governance::Stakeholder Management": 4,
+      "Soft Skills::Systemisches Denken": 4,
+      "Soft Skills::Kommunikation (DE/EN)": 4,
+      "Soft Skills::Storytelling & Facilitation": 4,
+      "Soft Skills::Mentoring & Moderation": 4,
+      "Soft Skills::Konfliktsensibilität": 4,
+      "User Interface (UI) Design::3D UI Design": 4,
+      "User Interface (UI) Design::Barrierefreiheit": 4,
+      "User Interface (UI) Design::Entwicklung von UI-Komponenten": 4,
+      "User Interface (UI) Design::Grundprinzipien des UI-Designs": 4,
+      "User Interface (UI) Design::Ikonografie": 4,
+      "User Interface (UI) Design::Informationsdesign": 4,
+      "User Interface (UI) Design::Interaction Design": 4,
+      "User Interface (UI) Design::Interaktives UI-Mockup-Design": 4,
+      "User Interface (UI) Design::Layout und Raster": 4,
+      "User Interface (UI) Design::Mobiles UI-Design": 4,
+      "User Interface (UI) Design::Prototyping": 4,
+      "User Interface (UI) Design::Touch Interface Design": 4,
+      "User Interface (UI) Design::Typografie": 4,
+      "User Interface (UI) Design::UI Design Patterns": 4,
+      "User Interface (UI) Design::UI-Trends und Innovationen": 4,
+      "User Interface (UI) Design::Voice UI Design": 4,
+      "Customer Journey Mapping::Emotion Mapping": 4,
+      "Customer Journey Mapping::Kunden-Personas": 4,
+      "Customer Journey Mapping::Kundenverhalten": 4,
+      "Customer Journey Mapping::Touchpoint-Identifikation": 4,
+      "Designprinzipien::CI-Standards": 4,
+      "Grafikdesign::Bildsprache und Icons": 4,
+      "Requirements Management::Schnittstellenmanagement": 4,
+      "User Experience (UX) Design::Mockups": 4,
+      "User Experience (UX) Design::Storyboarding": 4,
+      "User Experience (UX) Design::Trendresearch": 4,
+      "User Experience (UX) Design::UX-Analyse": 4,
+      "User Experience (UX) Design::UX-Metriken": 4,
+      "User Experience (UX) Design::User Journey": 4,
+      "User Experience (UX) Design::Wireframing": 4,
+      "User Experience (UX) Design::Frontend-Grundlagen": 4,
+      "User Experience (UX) Design::Webdesign": 4,
+      "User Experience (UX) Design::Usability Testing": 4,
+      "User Experience (UX) Design::UX Writing": 4,
+      "User Experience (UX) Design::Prototyping": 4,
+      "User Experience (UX) Design::Interaction Design": 4,
+      "Design & HMI Craft (Operativ)::Embedded UI Patterns (TFT/DSP)": 4,
+      "DesignOps & Bridge (Technisch)::Android HMI (Jetpack Compose Demo)": 4,
+      "DesignOps & Bridge (Technisch)::Interoperabilität (Matter/Home Connect)": 4,
+      "Design & HMI Craft (Operativ)::3D Asset Pipeline / PBR": 4,
+      "System UX (Strategisch)::Partner‑Governance (Make/Buy)": 4,
+      "System UX (Strategisch)::CPLA‑Literacy & Mapping": 4,
+      "System UX (Strategisch)::E²X Orchestrierung (Device⇄App⇄Cloud)": 4,
+      "System UX (Strategisch)::CR/Freeze‑Governance": 4,
+      "System UX (Strategisch)::Konzeptvorlauf (Lead Time)": 4,
+      "Design & HMI Craft (Operativ)::Unreal Engine (HMI/Taskforce)": 4,
+      "Design & HMI Craft (Operativ)::Mapbox 3D / Navigation Layer": 4,
+      "DesignOps & Bridge (Technisch)::JSON/YAML & Toolchain": 4,
+      "DesignOps & Bridge (Technisch)::VSS / COVESA Signals": 4
+    },
+    "Lead": {
+      "System UX (Strategisch)::Experience Vision & Roadmap": 5,
+      "System UX (Strategisch)::Service-/Ecosystem-Mapping": 5,
+      "System UX (Strategisch)::Information Architecture": 5,
+      "System UX (Strategisch)::Telemetry & UX‑KPIs (Strategie)": 5,
+      "Design & HMI Craft (Operativ)::HMI‑Konzept & Flows": 5,
+      "Design & HMI Craft (Operativ)::Interaction Design": 5,
+      "Design & HMI Craft (Operativ)::UI/Visual Design": 5,
+      "Design & HMI Craft (Operativ)::Designsystem‑Reife (DSYS)": 5,
+      "Design & HMI Craft (Operativ)::Figma: Components/Tokens/Dev Mode": 5,
+      "Design & HMI Craft (Operativ)::Motion/Prototyping (ProtoPie etc.)": 5,
+      "Design & HMI Craft (Operativ)::Testing & Prototyping (HMI)": 5,
+      "DesignOps & Bridge (Technisch)::UX Engineering (Figma→Code Bridge)": 5,
+      "DesignOps & Bridge (Technisch)::DevOps CI/CD Literacy": 5,
+      "DesignOps & Bridge (Technisch)::DataOps & Telemetrie Pipelines": 5,
+      "DesignOps & Bridge (Technisch)::TouchGFX / Embedded UI": 5,
+      "DesignOps & Bridge (Technisch)::Collab mit Elektronik (ELEC)": 5,
+      "DesignOps & Bridge (Technisch)::Dual‑Track (Discovery/Delivery)": 5,
+      "Leadership & Governance::FO‑Depth (Fach‑Owner)": 5,
+      "Leadership & Governance::XFT‑Score (Crossfunktionale Teams)": 5,
+      "Leadership & Governance::SAFe/PI Planning (Rollen & Artefakte)": 5,
+      "Leadership & Governance::Roadmap & Governance (DesignOps)": 5,
+      "Leadership & Governance::Cross‑functional Delivery (OEM/Tier‑X)": 5,
+      "Leadership & Governance::Stakeholder Management": 5,
+      "Soft Skills::Systemisches Denken": 5,
+      "Soft Skills::Kommunikation (DE/EN)": 5,
+      "Soft Skills::Storytelling & Facilitation": 5,
+      "Soft Skills::Mentoring & Moderation": 5,
+      "Soft Skills::Konfliktsensibilität": 5,
+      "User Interface (UI) Design::3D UI Design": 5,
+      "User Interface (UI) Design::Barrierefreiheit": 5,
+      "User Interface (UI) Design::Entwicklung von UI-Komponenten": 5,
+      "User Interface (UI) Design::Grundprinzipien des UI-Designs": 5,
+      "User Interface (UI) Design::Ikonografie": 5,
+      "User Interface (UI) Design::Informationsdesign": 5,
+      "User Interface (UI) Design::Interaction Design": 5,
+      "User Interface (UI) Design::Interaktives UI-Mockup-Design": 5,
+      "User Interface (UI) Design::Layout und Raster": 5,
+      "User Interface (UI) Design::Mobiles UI-Design": 5,
+      "User Interface (UI) Design::Prototyping": 5,
+      "User Interface (UI) Design::Touch Interface Design": 5,
+      "User Interface (UI) Design::Typografie": 5,
+      "User Interface (UI) Design::UI Design Patterns": 5,
+      "User Interface (UI) Design::UI-Trends und Innovationen": 5,
+      "User Interface (UI) Design::Voice UI Design": 5,
+      "Customer Journey Mapping::Emotion Mapping": 5,
+      "Customer Journey Mapping::Kunden-Personas": 5,
+      "Customer Journey Mapping::Kundenverhalten": 5,
+      "Customer Journey Mapping::Touchpoint-Identifikation": 5,
+      "Designprinzipien::CI-Standards": 5,
+      "Grafikdesign::Bildsprache und Icons": 5,
+      "Requirements Management::Schnittstellenmanagement": 5,
+      "User Experience (UX) Design::Mockups": 5,
+      "User Experience (UX) Design::Storyboarding": 5,
+      "User Experience (UX) Design::Trendresearch": 5,
+      "User Experience (UX) Design::UX-Analyse": 5,
+      "User Experience (UX) Design::UX-Metriken": 5,
+      "User Experience (UX) Design::User Journey": 5,
+      "User Experience (UX) Design::Wireframing": 5,
+      "User Experience (UX) Design::Frontend-Grundlagen": 5,
+      "User Experience (UX) Design::Webdesign": 5,
+      "User Experience (UX) Design::Usability Testing": 5,
+      "User Experience (UX) Design::UX Writing": 5,
+      "User Experience (UX) Design::Prototyping": 5,
+      "User Experience (UX) Design::Interaction Design": 5,
+      "Design & HMI Craft (Operativ)::Embedded UI Patterns (TFT/DSP)": 5,
+      "DesignOps & Bridge (Technisch)::Android HMI (Jetpack Compose Demo)": 5,
+      "DesignOps & Bridge (Technisch)::Interoperabilität (Matter/Home Connect)": 5,
+      "Design & HMI Craft (Operativ)::3D Asset Pipeline / PBR": 5,
+      "System UX (Strategisch)::Partner‑Governance (Make/Buy)": 5,
+      "System UX (Strategisch)::CPLA‑Literacy & Mapping": 5,
+      "System UX (Strategisch)::E²X Orchestrierung (Device⇄App⇄Cloud)": 5,
+      "System UX (Strategisch)::CR/Freeze‑Governance": 5,
+      "System UX (Strategisch)::Konzeptvorlauf (Lead Time)": 5,
+      "Design & HMI Craft (Operativ)::Unreal Engine (HMI/Taskforce)": 5,
+      "Design & HMI Craft (Operativ)::Mapbox 3D / Navigation Layer": 5,
+      "DesignOps & Bridge (Technisch)::JSON/YAML & Toolchain": 5,
+      "DesignOps & Bridge (Technisch)::VSS / COVESA Signals": 5
+    }
+  }
+}
+</script>
+
+  <script>
+  // --- Helpers & State (0–5 Skala) ---
+  const byId = id => document.getElementById(id);
+  const clamp = (x,min=0,max=5) => Math.max(min, Math.min(max, x));
+  const clamp5 = x => clamp(Math.round(Number(x)||0), 0, 5);
+  const pct5  = v => (clamp(Number(v),0,5)/5)*100;
+  const initials = full => { const p=String(full||'').trim().split(/\s+/); return ((p[0]||'').charAt(0)+(p[p.length-1]||'').charAt(0)).toUpperCase(); };
+  const skillKey = (cat, skill) => `${cat}::${skill}`;
+  const describeLevel5 = v => ([
+    '0: Keine Praxis',
+    '1: Anfänger',
+    '2: Basics',
+    '3: Fortgeschritten',
+    '4: Senior/Expert',
+    '5: Principal/Lead'
+  ][clamp5(v)]);
+
+  const THEMES = {
+    Marie:{bg:'#0e0f1d',bg2:'#0b0e1a',accent:'#ff6fb5',accent2:'#ffd1e8'},
+    Leon:{bg:'#0e1015',bg2:'#0a0d12',accent:'#7de87d',accent2:'#b9ffcf'},
+    Christian:{bg:'#0d1020',bg2:'#0b0e1a',accent:'#7aa2ff',accent2:'#5cf2c7'},
+    Anne:{bg:'#160f20',bg2:'#110c1a',accent:'#c58cff',accent2:'#ffd0ff'},
+    Team:{bg:'#101010',bg2:'#0a0a0a',accent:'#ffd166',accent2:'#ffe29a'}
+  };
+  function applyTheme(u){ const t = THEMES[u]||THEMES['Christian']; const root=document.documentElement; root.style.setProperty('--bg',t.bg); root.style.setProperty('--bg2',t.bg2); root.style.setProperty('--accent',t.accent); root.style.setProperty('--accent2',t.accent2); }
+
+  // Live hint bubble
+  const hintEl = (()=>{ const d=document.createElement('div'); d.className='live-hint'; document.body.appendChild(d); return d; })(); let hintTimer=null;
+  function showHint(range, it){ const r=range.getBoundingClientRect(); const pct=it.v/5; const x=r.left + r.width * pct; const min=16, max=window.innerWidth - 16; hintEl.textContent=`${it.n}: ${it.v} — ${describeLevel5(it.v)}`; hintEl.style.left=Math.max(min, Math.min(max, x))+'px'; hintEl.style.top=(r.top - 8)+'px'; hintEl.style.opacity='1'; clearTimeout(hintTimer); hintTimer=setTimeout(()=>{ hintEl.style.opacity='0'; }, 900); }
+
+  // Bars for PDF (inline SVG, print-safe)
+  function pdfBarsHTML(v5, r5){
+    const W=160, H=10, GAP=4;
+    const hasRef = r5!=null && r5!==undefined;
+    const wIst = Math.round((clamp5(v5)/5)*W);
+    const wRef = hasRef ? Math.round((clamp5(r5)/5)*W) : 0;
+    const totalH = hasRef ? (H*2 + GAP) : H;
+    const cs = getComputedStyle(document.documentElement);
+    const acc1 = (cs.getPropertyValue('--accent').trim()  || '#7aa2ff');
+    const acc2 = (cs.getPropertyValue('--accent2').trim() || '#5cf2c7');
+    return `
+<svg width="${W}" height="${totalH}" viewBox="0 0 ${W} ${totalH}" xmlns="http://www.w3.org/2000/svg" aria-label="Skillbalken">
+  <defs>
+    <linearGradient id="gIst" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="${acc1}"/><stop offset="1" stop-color="${acc2}"/>
+    </linearGradient>
+    <linearGradient id="gRef" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ffd166"/><stop offset="1" stop-color="#ffe29a"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="${W}" height="${H}" rx="5" ry="5" fill="#11152b" stroke="rgba(0,0,0,.35)"/>
+  <rect x="0.5" y="0.5" width="${Math.max(0,wIst-1)}" height="${H-1}" rx="4.5" ry="4.5" fill="url(#gIst)"/>
+  ${hasRef ? `
+  <rect x="0" y="${H+GAP}" width="${W}" height="${H}" rx="5" ry="5" fill="#11152b" stroke="rgba(0,0,0,.35)"/>
+  <rect x="0.5" y="${H+GAP+0.5}" width="${Math.max(0,wRef-1)}" height="${H-1}" rx="4.5" ry="4.5" fill="url(#gRef)"/>
+  `:``}
+</svg>`;
+  }
+
+  // --- Boot embedded state and migrate to 0–5 ---
+  let FILE_STATE = readEmbeddedState();
+  function readEmbeddedState(){
+    try{
+      const el = byId('EMBEDDED_STATE');
+      return el ? JSON.parse(el.textContent) : { schemaVersion:9, users:[], data:{}, peer:{}, teamFilter:null };
+    }catch{ return { schemaVersion:9, users:[], data:{}, peer:{}, teamFilter:null }; }
+  }
+
+  const DEFAULT_DATA = (()=>{
+    const base = {
+      meta: { profile:'Default', owner:'', updated:new Date().toISOString(), zeroBaseline:1, orient:{}, activeCategory:0, collapsed:{}, scale:'0-5' },
+      categories: []
+    };
+    const fallback = [
+      { name: 'System UX (Strategisch)', items: [
+        'Experience Vision & Roadmap','Service-/Ecosystem-Mapping','Information Architecture','CPLA‑Literacy & Mapping','E²X Orchestrierung (Device⇄App⇄Cloud)','Konzeptvorlauf (Lead Time)','CR/Freeze‑Governance','Partner‑Governance (Make/Buy)','Telemetry & UX‑KPIs (Strategie)'
+      ]},
+      { name: 'Design & HMI Craft (Operativ)', items: [
+        'HMI‑Konzept & Flows','Interaction Design','UI/Visual Design','Designsystem‑Reife (DSYS)','Figma: Components/Tokens/Dev Mode','Motion/Prototyping (ProtoPie etc.)','Testing & Prototyping (HMI)','Embedded UI Patterns (TFT/DSP)','3D Asset Pipeline / PBR','Unreal Engine (HMI/Taskforce)','Mapbox 3D / Navigation Layer'
+      ]},
+      { name: 'DesignOps & Bridge (Technisch)', items: [
+        'UX Engineering (Figma→Code Bridge)','DevOps CI/CD Literacy','DataOps & Telemetrie Pipelines','JSON/YAML & Toolchain','VSS / COVESA Signals','Android HMI (Jetpack Compose Demo)','TouchGFX / Embedded UI','Interoperabilität (Matter/Home Connect)','Collab mit Elektronik (ELEC)','Dual‑Track (Discovery/Delivery)'
+      ]},
+      { name: 'Leadership & Governance', items: [
+        'FO‑Depth (Fach‑Owner)','XFT‑Score (Crossfunktionale Teams)','SAFe/PI Planning (Rollen & Artefakte)','Roadmap & Governance (DesignOps)','Cross‑functional Delivery (OEM/Tier‑X)','Stakeholder Management'
+      ]},
+      { name: 'Soft Skills', items: [
+        'Systemisches Denken','Kommunikation (DE/EN)','Storytelling & Facilitation','Mentoring & Moderation','Konfliktsensibilität'
+      ]},
+      { name: 'User Interface (UI) Design', items: [
+        '3D UI Design','Barrierefreiheit','Entwicklung von UI-Komponenten','Grundprinzipien des UI-Designs','Ikonografie','Informationsdesign','Interaction Design','Interaktives UI-Mockup-Design','Layout und Raster','Mobiles UI-Design','Prototyping','Touch Interface Design','Typografie','UI Design Patterns','UI-Trends und Innovationen','Voice UI Design'
+      ]},
+      { name: 'Customer Journey Mapping', items: ['Emotion Mapping','Kunden-Personas','Kundenverhalten','Touchpoint-Identifikation']},
+      { name: 'Designprinzipien', items: ['CI-Standards']},
+      { name: 'Grafikdesign', items: ['Bildsprache und Icons']},
+      { name: 'Requirements Management', items: ['Schnittstellenmanagement']},
+      { name: 'User Experience (UX) Design', items: [
+        'Mockups','Storyboarding','Trendresearch','UX-Analyse','UX-Metriken','User Journey','Wireframing','Frontend-Grundlagen','Webdesign','Usability Testing','UX Writing','Prototyping','Interaction Design'
+      ]}
+    ];
+    base.categories = fallback.map(c=>({ name:c.name, items:c.items.map(n=>({n, v:0})) }));
+    base.categories.forEach(c=> base.meta.orient[c.name]=0);
+    return base;
+  })();
+
+  function fullNameFor(first){ return (FILE_STATE.users || []).find(n=> n.split(' ')[0]===first) || first; }
+
+  function deepClone(o){ return JSON.parse(JSON.stringify(o)); }
+
+  function ensureUserData(first){
+    if(!FILE_STATE.data) FILE_STATE.data={};
+    if(!FILE_STATE.data[first]){
+      const d = deepClone(DEFAULT_DATA);
+      d.meta.owner = fullNameFor(first);
+      ensureOrient(d);
+      FILE_STATE.data[first]=d;
+    }
+    const d = FILE_STATE.data[first];
+    migrateUserTo5(d);
+    return d;
+  }
+
+  function ensureOrient(d){
+    d.meta = d.meta || {};
+    d.meta.orient = d.meta.orient || {};
+    (d.categories||[]).forEach(c=>{ if(typeof d.meta.orient[c.name] !== 'number') d.meta.orient[c.name]=0; });
+    d.meta.scale = '0-5';
+    d.meta.collapsed = d.meta.collapsed || {};
+  }
+
+  function migrateUserTo5(d){
+    let changed=false;
+    ensureOrient(d);
+    // Convert item values from 0–100 or 0–4 -> 0–5
+    (d.categories||[]).forEach(cat=>{
+      (cat.items||[]).forEach(it=>{
+        if(typeof it.v==='number'){
+          if(it.v>5){ it.v = clamp5(Math.round(it.v/20)); changed=true; } // 100 -> 5
+          if(it.v<0){ it.v = 0; changed=true; }
+        } else { it.v=0; changed=true; }
+      });
+    });
+    // Convert orient (if was 0–10) -> 0–5
+    Object.keys(d.meta.orient||{}).forEach(k=>{
+      const v=d.meta.orient[k];
+      if(typeof v==='number' && v>5){ d.meta.orient[k]=clamp5(Math.round(v/2)); changed=true; }
+    });
+    if(d.meta.scale!=='0-5'){ d.meta.scale='0-5'; changed=true; }
+    if(changed) d.meta.updated=new Date().toISOString();
+  }
+
+  // --- References (Junior/Professional/Senior/Lead) auf 0–5 ---
+  function ensureRefs(){
+    if(!FILE_STATE.refs) FILE_STATE.refs={};
+    const levels=['Junior','Professional','Senior','Lead'];
+    const base={Junior:1, Professional:3, Senior:4, Lead:5}; // neue sinnvolle Abstände
+    levels.forEach(l=>{ if(!FILE_STATE.refs[l]) FILE_STATE.refs[l]={}; });
+    const seedSkill = (catName,skillName)=>{
+      const k=skillKey(catName,skillName);
+      levels.forEach(lvl=>{
+        if(typeof FILE_STATE.refs[lvl][k] !== 'number') FILE_STATE.refs[lvl][k] = base[lvl];
+      });
+    };
+    Object.keys(FILE_STATE.data||{}).forEach(first=>{
+      const d=ensureUserData(first);
+      (d.categories||[]).forEach(c=> (c.items||[]).forEach(it=> seedSkill(c.name,it.n)));
+    });
+    (DEFAULT_DATA.categories||[]).forEach(c=> (c.items||[]).forEach(it=> seedSkill(c.name,it.n)));
+  }
+  function getRefVal(level, cat, skill){
+    ensureRefs();
+    const k=skillKey(cat,skill);
+    const m=FILE_STATE.refs?.[level]||{};
+    let val = typeof m[k]==='number' ? clamp5(m[k]) : null;
+    if(val==null){
+      const base={Junior:1, Professional:3, Senior:4, Lead:5};
+      val=base[level]||null;
+    }
+    return val;
+  }
+
+  // --- Team compute (0–5) ---
+  function firstsFromUsersList() {
+    return (FILE_STATE.users || []).map(f => (f.split(' ')[0] || '').trim()).filter(Boolean);
+  }
+  function selectedTeamFirsts() {
+    const all = firstsFromUsersList();
+    const sel = Array.isArray(FILE_STATE.teamFilter) ? FILE_STATE.teamFilter.filter(f => all.includes(f)) : [];
+    return sel.length ? sel : all;
+  }
+  function computeTeamState(){
+    const agg = new Map();
+    selectedTeamFirsts().forEach(u=>{
+      const d = ensureUserData(u);
+      (d.categories||[]).forEach(cat=>{
+        if(!agg.has(cat.name)) agg.set(cat.name, new Map());
+        const m=agg.get(cat.name);
+        (cat.items||[]).forEach(it=>{
+          const key=it.n;
+          if(!m.has(key)) m.set(key,{sum:0,count:0});
+          const a=m.get(key);
+          a.sum+=(Number(it.v)||0);
+          a.count+=1;
+        });
+      });
+    });
+    const categories=[];
+    agg.forEach((m,catName)=>{
+      const items=[];
+      m.forEach((rec,n)=> items.push({n, v: clamp5(Math.round(rec.sum/Math.max(1,rec.count)))}));
+      items.sort((a,b)=> b.v-a.v);
+      categories.push({name:catName, items});
+    });
+    const order=(DEFAULT_DATA.categories||[]).map(c=>c.name);
+    categories.sort((a,b)=> order.indexOf(a.name)-order.indexOf(b.name));
+    return { meta:{profile:'Team',owner:'Team',updated:new Date().toISOString()}, categories };
+  }
+
+  function stats(arr){ const n=arr.length; if(!n) return {avg:0, med:0, sd:0}; const avg = arr.reduce((a,b)=>a+b,0)/n; const sorted=[...arr].sort((a,b)=>a-b); const med = n%2? sorted[(n-1)/2] : (sorted[n/2-1]+sorted[n/2])/2; const sd = Math.sqrt(arr.reduce((s,x)=>s+(x-avg)**2,0)/n); return {avg:Math.round(avg), med:Math.round(med), sd:Math.round(sd)}; }
+  function teamOrientStats(catName){ const vals = selectedTeamFirsts().map(u=>{ const d=ensureUserData(u); const v=d?.meta?.orient?.[catName]; return typeof v==='number'? v:0; }); return stats(vals); }
+
+  // --- UI State ---
+  let ACTIVE_USER = FILE_STATE.active || 'Christian';
+  let state = ensureUserData(ACTIVE_USER);
+  let activeCategory = Number.isInteger(state.meta?.activeCategory)? state.meta.activeCategory : 0;
+
+  const PEER_MODE = { active:false, reviewer:null, reviewee:null };
+  function enterPeerMode(reviewer, reviewee){
+    PEER_MODE.active=true; PEER_MODE.reviewer=reviewer; PEER_MODE.reviewee=reviewee;
+    const pill = byId('peer-pill'); if(pill){ pill.classList.remove('hidden'); pill.textContent = `Peer: ${fullNameFor(reviewer).split(' ')[0]} → ${fullNameFor(reviewee).split(' ')[0]}`; }
+    render();
+  }
+  function exitPeerMode(){
+    PEER_MODE.active=false; PEER_MODE.reviewer=null; PEER_MODE.reviewee=null;
+    const pill = byId('peer-pill'); if(pill) pill.classList.add('hidden');
+    render();
+  }
+
+  // --- Delta badges ---
+  const DELTA_SMALL=1; // 0–5 Skala
+  const DELTA_MID=2;
+  function deltaBadge(kind, delta, title){
+    const abs=Math.abs(delta);
+    const span=document.createElement('span');
+    span.className='delta-chip ' + (kind==='peer'?'delta-peer':'delta-ref') + ' ' + (abs<=DELTA_SMALL?'delta-small':abs<=DELTA_MID?'delta-mid':'delta-big');
+    span.title = title || (kind==='peer'?'Peer-Abweichung':'Referenz-Abweichung');
+    const badge=document.createElement('span'); badge.className='badge'; badge.textContent = (kind==='peer'?'⇄':'★');
+    const sign=document.createElement('span'); sign.className='sign'; sign.textContent = (delta>0?'+':'')+String(delta);
+    span.append(badge, document.createTextNode('Δ '), sign);
+    return span;
+  }
+
+  // --- Theme & Header ---
+  function setHeaderFor(u){
+    const nameEl=byId('display-name'); const avEl=byId('avatar');
+    if(u==='Team'){
+      if(nameEl) nameEl.textContent='Team Overview';
+      if(avEl) avEl.textContent='TM';
+      setSubtitle('Gesamtkompetenz über alle Kategorien');
+      document.title='Team Overview — Interactive Skills Matrix (0–5)';
+      return;
+    }
+    const full = fullNameFor(u);
+    if(nameEl) nameEl.textContent = full;
+    if(avEl) avEl.textContent = initials(full);
+    document.title = `${full} — Interactive Skills Matrix (0–5)`;
+    const stored = (state.meta && typeof state.meta.subtitle==='string') ? state.meta.subtitle : 'Senior UX Consultant · Strategic Designer · HMI/SDV';
+    setSubtitle(stored);
+  }
+  function setSubtitle(text){ const el=byId('subtitle'); if(!el) return; const norm=String(text||'').replace(/\r/g,'').split('\n').slice(0,2).join('\n'); el.textContent = norm; }
+  function getSubtitle(){ const el=byId('subtitle'); if(!el) return ''; return el.innerText.replace(/\r/g,'').split('\n').slice(0,2).join('\n'); }
+
+  // --- Tabs ---
+  const tabsEl = byId('tabs');
+  function renderTabs(){
+    tabsEl.innerHTML='';
+    (FILE_STATE.users||[]).forEach(full=>{
+      const first = full.split(' ')[0];
+      const b = document.createElement('button'); b.className='tab'; b.dataset.user=first; b.textContent=first; if(first===ACTIVE_USER) b.classList.add('active');
+      b.addEventListener('click', ()=>{ tabsEl.querySelectorAll('.tab').forEach(x=> x.classList.remove('active')); b.classList.add('active'); ACTIVE_USER=first; state=ensureUserData(ACTIVE_USER); applyTheme(ACTIVE_USER); setHeaderFor(ACTIVE_USER); byId('btn-add').disabled=false; exitPeerMode(); render(); updateAddBtnLabel(); FILE_STATE.active = ACTIVE_USER; });
+      tabsEl.appendChild(b);
+    });
+    const t = document.createElement('button'); t.className='tab team'; t.dataset.user='Team'; t.textContent='Team'; if(ACTIVE_USER==='Team') t.classList.add('active');
+    t.addEventListener('click', ()=>{ tabsEl.querySelectorAll('.tab').forEach(x=> x.classList.remove('active')); t.classList.add('active'); ACTIVE_USER='Team'; applyTheme('Team'); setHeaderFor('Team'); byId('btn-add').disabled=true; exitPeerMode(); render(); updateAddBtnLabel(); });
+    tabsEl.appendChild(t);
+  }
+
+  function updateAddBtnLabel(){
+    const btn=byId('btn-add'); if(!btn) return;
+    if(ACTIVE_USER==='Team'){ btn.textContent='+ Skill (Team-Tab deaktiviert)'; btn.disabled=true; return;}
+    btn.disabled=false;
+    const name=(state.categories?.[activeCategory]?.name)||'Kategorie';
+    btn.textContent = '+ Skill in ' + name;
+    byId('add-cat-name').textContent=name;
+  }
+
+  // --- Rendering categories & rows ---
+  const categoriesRoot = byId('categories');
+  function render(){
+    try{
+      categoriesRoot.innerHTML='';
+      const pill=byId('profile-pill'); if(pill) pill.textContent=`Tab: ${ACTIVE_USER}`;
+      const q=(byId('search').value||'').trim().toLowerCase();
+      const currentRefLevel = (byId('sel-ref-view')?.value||'').trim();
+
+      if(ACTIVE_USER==='Team'){
+        const notice=document.createElement('div'); notice.className='tag'; notice.style.margin='6px 0 8px'; notice.textContent='Team-Ansicht: Bearbeitung deaktiviert. Wechsle zu einem Personentab, um Skills/Kategorien zu ändern.'; categoriesRoot.append(notice);
+        const c2=document.createElement('div'); c2.className='tag';
+        const count = selectedTeamFirsts().length;
+        const total = firstsFromUsersList().length;
+        c2.textContent = `Filter: ${count} von ${total} aktiv`;
+        categoriesRoot.append(c2);
+      }
+
+      const reviewee = PEER_MODE.active ? PEER_MODE.reviewee : ACTIVE_USER;
+      const viewState = (ACTIVE_USER==='Team') ? computeTeamState() : ensureUserData(reviewee);
+
+      (viewState.categories||[]).forEach((cat,cIdx)=>{
+        const section=document.createElement('section'); section.className='category'; if(cIdx===activeCategory) section.classList.add('active'); section.dataset.idx=String(cIdx);
+        const heading=document.createElement('h3'); const wrap=document.createElement('div'); wrap.className='h3-wrap';
+        const toggler=document.createElement('button'); toggler.className='chip'; toggler.textContent='▾'; toggler.title='Kategorie ein-/ausklappen';
+        const grid=document.createElement('div'); grid.className='grid';
+        const isCollapsed = (ACTIVE_USER==='Team') ? false : !!(state.meta?.collapsed?.[cat.name]);
+        if(isCollapsed){ grid.classList.add('hidden'); toggler.textContent='▸'; }
+        grid.id = `cat-${cIdx}-grid`;
+        toggler.setAttribute('aria-controls', grid.id);
+        toggler.setAttribute('aria-expanded', String(!grid.classList.contains('hidden')));
+        toggler.addEventListener('click', ()=>{
+          grid.classList.toggle('hidden');
+          const collapsedNow = grid.classList.contains('hidden');
+          toggler.textContent = collapsedNow ? '▸' : '▾';
+          toggler.setAttribute('aria-expanded', String(!collapsedNow));
+          if(ACTIVE_USER!=='Team'){
+            if(!state.meta) state.meta={}; if(!state.meta.collapsed) state.meta.collapsed={}; state.meta.collapsed[cat.name] = collapsedNow; state.meta.updated=new Date().toISOString();
+          }
+        });
+
+        const marker=document.createElement('span'); marker.className='marker';
+        const titleText=document.createElement('span'); titleText.textContent=cat.name; titleText.style.cursor = ACTIVE_USER==='Team' ? 'default' : 'text';
+        const spacer=document.createElement('div'); spacer.className='flex-spacer';
+        const ctl=document.createElement('div'); ctl.className='cat-ctl';
+
+        if(ACTIVE_USER==='Team'){
+          const s = teamOrientStats(cat.name);
+          const chip=document.createElement('span'); chip.className='cat-chip'; chip.textContent=`Ø ${s.avg} (Med ${s.med}, σ ${s.sd})`; ctl.append(chip);
+        } else if(PEER_MODE.active){
+          const chip=document.createElement('span'); chip.className='cat-chip'; chip.textContent='Peer-Review aktiv'; ctl.append(chip);
+        } else {
+          ensureOrient(state);
+          const current=clamp5(state.meta.orient[cat.name]??0);
+          const range=document.createElement('input'); range.type='range'; range.min='0'; range.max='5'; range.step='1'; range.value=String(current); range.className='cat-range'; range.style.setProperty('--value', `${pct5(range.value)}%`);
+          const chip=document.createElement('span'); chip.className='cat-chip'; chip.textContent=`Ø ${current}`;
+          const delCat=document.createElement('button'); delCat.className='cat-del'; delCat.title='Kategorie entfernen'; delCat.textContent='✕';
+          delCat.addEventListener('click', ()=>{ if(!confirm(`Kategorie „${cat.name}“ wirklich löschen?`)) return;
+            if(state.meta?.orient && (cat.name in state.meta.orient)) delete state.meta.orient[cat.name];
+            (state.meta?.collapsed && (cat.name in state.meta.collapsed)) && delete state.meta.collapsed[cat.name];
+            state.categories.splice(cIdx,1); render(); });
+          range.addEventListener('input',(e)=>{ const v=clamp5(parseInt(e.target.value,10)||0); state.meta.orient[cat.name]=v; chip.textContent=`Ø ${v}`; range.style.setProperty('--value', `${pct5(v)}%`); state.meta.updated=new Date().toISOString(); });
+          ctl.append(range, chip, delCat);
+
+          titleText.addEventListener('dblclick', ()=>{
+            const neu = prompt('Neuer Kategoriename:', cat.name);
+            if(!neu || neu.trim()===cat.name) return;
+            const old = cat.name; cat.name = neu.trim();
+            ensureOrient(state);
+            if(state.meta.orient.hasOwnProperty(old)) { state.meta.orient[cat.name] = state.meta.orient[old]; delete state.meta.orient[old]; }
+            if(state.meta.collapsed?.hasOwnProperty(old)) { state.meta.collapsed[cat.name] = state.meta.collapsed[old]; delete state.meta.collapsed[old]; }
+            render();
+          });
+        }
+
+        wrap.append(toggler,' ',marker,' ',titleText, spacer, ctl);
+        heading.append(wrap); heading.addEventListener('click', ()=>{ activeCategory=cIdx; if(state?.meta) state.meta.activeCategory=cIdx; });
+        section.append(heading);
+
+        (cat.items||[]).forEach((it,iIdx)=>{
+          if(q && !it.n.toLowerCase().includes(q) && !cat.name.toLowerCase().includes(q)) return;
+
+          if(ACTIVE_USER==='Team'){
+            const row=document.createElement('div'); row.className='row team';
+            const name=document.createElement('div'); name.className='name'; name.textContent=it.n;
+            const bar=document.createElement('div'); bar.className='bar'; const fill=document.createElement('div'); fill.className='bar-fill'; fill.style.width=pct5(it.v)+'%'; bar.append(fill);
+            const val=document.createElement('div'); val.className='right muted'; val.textContent=String(clamp5(it.v));
+            row.append(name, bar, val); grid.append(row);
+          } else {
+            const row=document.createElement('div'); row.className='row';
+            const name=document.createElement('div'); name.className='name editable'; name.title='Klick zum Umbenennen'; name.textContent=it.n;
+            const val=document.createElement('div'); val.className='right muted'; val.title='Klick zum Bearbeiten';
+            const del=document.createElement('button'); del.className='del'; del.title='Skill entfernen'; del.textContent='✕';
+            const deltaCell=document.createElement('div'); deltaCell.className='delta';
+            const sliderWrap=document.createElement('div'); sliderWrap.className='slider';
+            const range=document.createElement('input'); range.type='range'; range.min='0'; range.max='5'; range.step='1'; range.value=String(clamp5(it.v)); range.className='range';
+            range.style.setProperty('--value', `${pct5(range.value)}%`);
+            sliderWrap.append(range);
+
+            const selfVal = clamp5(it.v);
+            const reviewee = PEER_MODE.active ? PEER_MODE.reviewee : ACTIVE_USER;
+
+            if(!PEER_MODE.active){
+              name.addEventListener('click', ()=>{ const nn=prompt('Neuer Skill-Name:', it.n); if(nn && nn.trim()){ it.n=nn.trim(); name.textContent=it.n; state.meta.updated=new Date().toISOString(); }});
+            }
+
+            function renderDeltas(){
+              deltaCell.innerHTML='';
+              // Peer
+              if(PEER_MODE.active){
+                const curr = clamp5(parseInt(range.value,10)||0);
+                const dPeer = curr - selfVal;
+                deltaCell.append(deltaBadge('peer', dPeer, 'Deine Bewertung vs. Eigen'));
+              } else {
+                const avg = peerAvgFor(reviewee, cat.name, it.n);
+                if(avg!=null){
+                  const dPeer = avg - selfVal;
+                  deltaCell.append(deltaBadge('peer', dPeer, `⌀ Peer (${avg}) vs. Eigen (${selfVal})`));
+                }
+              }
+              // Reference
+              if(currentRefLevel){
+                const r = getRefVal(currentRefLevel, cat.name, it.n);
+                if(typeof r==='number'){
+                  const dRef = selfVal - r;
+                  deltaCell.append(deltaBadge('ref', dRef, `Referenz ${currentRefLevel}: ${r}`));
+                }
+              }
+            }
+
+            if(PEER_MODE.active){
+              const curr = (getReviewerRating(PEER_MODE.reviewer, reviewee, cat.name, it.n) ?? selfVal);
+              range.value = String(clamp5(curr)); range.style.setProperty('--value', `${pct5(range.value)}%`);
+              val.textContent = String(clamp5(curr));
+              range.addEventListener('input',(e)=>{ const nv=clamp5(parseInt(e.target.value,10)||0); setReviewerRating(PEER_MODE.reviewer, reviewee, cat.name, it.n, nv); range.style.setProperty('--value', `${pct5(nv)}%`); val.textContent=nv; showHint(range,{n:it.n, v:nv}); activeCategory=cIdx; renderDeltas(); });
+              range.addEventListener('focus', ()=> activeCategory=cIdx);
+              renderDeltas();
+              del.disabled=true; del.style.opacity='0.4'; del.style.pointerEvents='none'; del.title='Im Peer-Review gesperrt';
+            } else {
+              range.value = String(selfVal); range.style.setProperty('--value', `${pct5(selfVal)}%`);
+              range.addEventListener('input',(e)=>{ it.v=clamp5(parseInt(e.target.value,10)); range.style.setProperty('--value', `${pct5(it.v)}%`); val.textContent=it.v; state.meta.updated=new Date().toISOString(); showHint(range,{n:it.n, v:it.v}); activeCategory=cIdx; renderDeltas(); });
+              range.addEventListener('focus', ()=> activeCategory=cIdx);
+              val.textContent=String(selfVal);
+              val.addEventListener('click', ()=>{ const nv=prompt('Neuer Wert (0–5):', String(it.v)); if(nv==null) return; it.v=clamp5(parseInt(nv,10)||0); range.value=it.v; range.style.setProperty('--value', `${pct5(it.v)}%`); val.textContent=it.v; state.meta.updated=new Date().toISOString(); renderDeltas(); });
+              del.addEventListener('click', ()=>{ if(confirm(`‘${it.n}’ aus ${cat.name} entfernen?`)){ cat.items.splice(iIdx,1); render(); } });
+              renderDeltas();
+            }
+
+            row.append(name, val, del, deltaCell, sliderWrap); grid.append(row);
+            // A11y label
+            const id = `s-${Math.random().toString(36).slice(2)}`;
+            range.id = id;
+            const lab = document.createElement('label'); lab.className='sr-only'; lab.setAttribute('for', id); lab.textContent = it.n;
+            sliderWrap.prepend(lab);
+            range.setAttribute('role','slider');
+            range.setAttribute('aria-valuemin','0');
+            range.setAttribute('aria-valuemax','5');
+            range.setAttribute('aria-valuenow', String(selfVal));
+            range.setAttribute('aria-valuetext', describeLevel5(selfVal));
+            range.addEventListener('input', ()=>{
+              range.setAttribute('aria-valuenow', String(range.value));
+              range.setAttribute('aria-valuetext', describeLevel5(range.value));
+            });
+          }
+        });
+
+        section.append(grid); categoriesRoot.append(section);
+      });
+    }catch(err){
+      console.error('Render-Fehler:', err);
+      const warn=document.createElement('div'); warn.className='js-banner'; warn.innerHTML='<b>Render-Fehler:</b> '+(err?.message||String(err));
+      categoriesRoot.append(warn);
+    }
+  }
+
+  // --- Peer storage (0–5) ---
+  function ensurePeer(){ if(!FILE_STATE.peer) FILE_STATE.peer = {}; }
+  function getPeerMap(reviewer, reviewee){ ensurePeer(); if(!FILE_STATE.peer[reviewer]) FILE_STATE.peer[reviewer]={}; if(!FILE_STATE.peer[reviewer][reviewee]) FILE_STATE.peer[reviewer][reviewee]={}; return FILE_STATE.peer[reviewer][reviewee]; }
+  function getReviewerRating(reviewer, reviewee, cat, skill){ const m=getPeerMap(reviewer,reviewee); const k=skillKey(cat,skill); const v=m[k]; return typeof v==='number'? clamp5(v):null; }
+  function setReviewerRating(reviewer, reviewee, cat, skill, val){ const m=getPeerMap(reviewer,reviewee); m[skillKey(cat,skill)] = clamp5(Number(val)||0); }
+  function peerAvgFor(reviewee, cat, skill){
+    ensurePeer(); const k=skillKey(cat,skill); const reviewers = Object.keys(FILE_STATE.peer||{}); const vals=[]; reviewers.forEach(r=>{ const map = FILE_STATE.peer[r]?.[reviewee]; if(map && typeof map[k]==='number') vals.push(clamp5(map[k])); }); if(!vals.length) return null; const avg = Math.round(vals.reduce((a,b)=>a+b,0)/vals.length); return clamp5(avg);
+  }
+
+  // --- File Save/Open ---
+  let currentFileHandle = null;
+  let currentFileKind = null;
+  const hasFS = !!(window.showOpenFilePicker && window.showSaveFilePicker);
+
+  async function openFile(){
+    try{
+      if(!hasFS){ byId('import-file').click(); return; }
+      const [handle] = await window.showOpenFilePicker({
+        types:[
+          { description:'HTML', accept:{ 'text/html':['.html', '.htm'] }},
+          { description:'JSON', accept:{ 'application/json':['.json'] }},
+        ]
+      });
+      const file = await handle.getFile();
+      const text = await file.text();
+      let kind = file.type.includes('json') || /\.json$/i.test(file.name) ? 'json' : 'html';
+      const loaded = kind==='json' ? parseJsonState(text) : parseHtmlEmbeddedState(text);
+      if(!loaded) return alert('Konnte keine eingebetteten Daten finden.');
+      FILE_STATE = migrateIfNeeded(loaded);
+      currentFileHandle = handle; currentFileKind = kind;
+      bootFromFileState();
+    }catch(e){ if(e && e.name!=='AbortError') alert('Öffnen fehlgeschlagen: '+e.message); }
+  }
+  function parseHtmlEmbeddedState(html){
+    const m = html.match(/<script[^>]+id=["']EMBEDDED_STATE["'][^>]*>([\s\S]*?)<\/script>/i);
+    if(!m) return null;
+    try{ return JSON.parse(m[1]); }catch{ return null; }
+  }
+  function parseJsonState(text){ try{ return JSON.parse(text); }catch{ return null; } }
+  function migrateIfNeeded(s){
+    if(!s) return { schemaVersion:9, users:[], active:'Christian', data:{}, peer:{}, teamFilter:null };
+    if(typeof s.schemaVersion!=='number' || s.schemaVersion<9){ s.schemaVersion = 9; }
+    if(!s.users) s.users=[];
+    if(!s.data) s.data={};
+    if(!s.peer) s.peer={};
+    return s;
+  }
+
+  async function saveFile(asNew=false){
+    try{
+      const payload = currentFileKind==='json' ? serializeJson(FILE_STATE) : buildHtmlForSave();
+      let handle = currentFileHandle;
+      if(asNew || !hasFS || !handle){
+        if(hasFS){
+          handle = await window.showSaveFilePicker({
+            suggestedName: suggestedFilename(),
+            types:[
+              { description:'Selbstenthaltende Skills-HTML', accept:{ 'text/html':['.skills.html'] }},
+              { description:'JSON-Daten', accept:{ 'application/json':['.json'] }},
+            ]
+          });
+        } else {
+          const blob = new Blob([payload], {type: currentFileKind==='json' ? 'application/json' : 'text/html'});
+          const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=suggestedFilename(); a.click(); URL.revokeObjectURL(a.href);
+          return;
+        }
+      }
+      const writable = await handle.createWritable();
+      await writable.write(payload);
+      await writable.close();
+      currentFileHandle = handle;
+      if(currentFileKind==null){
+        currentFileKind = handle.name?.endsWith('.json') ? 'json' : 'html';
+      }
+    }catch(e){ if(e && e.name!=='AbortError') alert('Speichern fehlgeschlagen: '+e.message); }
+  }
+  function buildHtmlForSave(){
+    const html = document.documentElement.outerHTML;
+    const json = serializeJson(FILE_STATE);
+    const replaced = html.replace(/(<script[^>]+id=["']EMBEDDED_STATE["'][^>]*>)([\s\S]*?)(<\/script>)/i, `$1\n${json}\n$3`);
+    return '<!DOCTYPE html>\n' + replaced;
+  }
+  function serializeJson(obj){ return JSON.stringify(obj, null, 2); }
+  function suggestedFilename(){
+    const active = ACTIVE_USER || 'unbekannt';
+    const d = new Date().toISOString().slice(0,10);
+    return `skills_${active.toLowerCase()}_${d}.skills.html`;
+  }
+
+  // --- Add / Remove / Import / Export ---
+  byId('btn-add').onclick = ()=>{
+    if (ACTIVE_USER === 'Team') { alert('Im Team-Tab ist Bearbeiten deaktiviert. Bitte wähle einen Personentab.'); return; }
+    if (!state.categories || state.categories.length === 0) {
+      const nm = prompt('Keine Kategorien vorhanden. Name für die erste Kategorie:');
+      if (!nm) return;
+      state.categories = [{ name: nm, items: [] }]; ensureOrient(state); activeCategory=0; render();
+    }
+    const name = state.categories?.[activeCategory]?.name || 'Kategorie';
+    byId('add-cat-name').textContent = name;
+    byId('add-name').value = '';
+    byId('add-val').value = '0';
+    byId('dlg-add').showModal();
+  };
+  byId('add-cancel').onclick = ()=> byId('dlg-add').close();
+  byId('add-confirm').onclick = ()=>{
+    const nm=byId('add-name').value.trim();
+    const v=clamp5(parseInt(byId('add-val').value,10)||0);
+    if(!nm) return alert('Bitte einen Namen eingeben.');
+    const tgt=state.categories[activeCategory];
+    tgt.items.push({n:nm,v:v});
+    byId('dlg-add').close(); byId('add-name').value='';
+    state.meta.updated=new Date().toISOString();
+    render();
+  };
+  byId('btn-add-cat').onclick = ()=>{
+    if (ACTIVE_USER === 'Team') { alert('Im Team-Tab ist Bearbeiten deaktiviert. Bitte Personentab wählen.'); return; }
+    const nm = prompt('Name der neuen Kategorie:');
+    if (!nm) return;
+    state.categories.push({ name: nm, items: [] });
+    ensureOrient(state);
+    activeCategory=state.categories.length - 1;
+    state.meta.updated=new Date().toISOString();
+    render();
+  };
+  byId('btn-collapse').onclick = ()=>{ document.querySelectorAll('.grid').forEach(g=> g.classList.add('hidden')); document.querySelectorAll('.category h3 button').forEach(b=> b.textContent='▸'); };
+  byId('btn-expand').onclick = ()=>{ document.querySelectorAll('.grid').forEach(g=> g.classList.remove('hidden')); document.querySelectorAll('.category h3 button').forEach(b=> b.textContent='▾'); };
+
+  byId('btn-open').onclick = openFile;
+  byId('btn-save').onclick = ()=> saveFile(false);
+  byId('btn-save-as').onclick = ()=> saveFile(true);
+  byId('btn-export-json').onclick = ()=>{
+    const blob=new Blob([serializeJson(FILE_STATE)],{type:'application/json'});
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`${(ACTIVE_USER||'unbekannt').toLowerCase()}_skills_${(new Date()).toISOString().slice(0,10)}.json`; a.click(); URL.revokeObjectURL(a.href);
+  };
+  byId('btn-import').onclick = ()=> byId('import-file').click();
+  byId('import-file').onchange = (e)=>{ const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=()=>{ try{ let obj=null; if(/\.json$/i.test(f.name)){ obj=JSON.parse(r.result); } else { obj=parseHtmlEmbeddedState(r.result); } if(!obj) throw new Error('Ungültiges Format'); FILE_STATE=migrateIfNeeded(obj); bootFromFileState(); }catch(err){ alert('Import fehlgeschlagen: '+err.message);} }; r.readAsText(f); e.target.value=''; };
+
+  byId('search').addEventListener('input', render);
+
+  // Team members dialog
+  function buildTeamList(){ const host=byId('team-list'); host.innerHTML=''; (FILE_STATE.users||[]).forEach((full,idx)=>{ const row=document.createElement('div'); row.className='dialog-row'; const inp=document.createElement('input'); inp.className='search'; inp.style.width='100%'; inp.value=full; const del=document.createElement('button'); del.textContent='✕'; del.title='Mitglied entfernen'; del.addEventListener('click', ()=>{ if(confirm(`‘${full}’ entfernen?`)){ FILE_STATE.users.splice(idx,1); buildTeamList(); renderTabs(); render(); } }); row.append(inp, del); host.append(row); }); }
+  byId('btn-team').onclick = ()=>{ buildTeamList(); byId('dlg-team').showModal(); };
+  byId('team-add').onclick = ()=>{ (FILE_STATE.users||[]).push('Neues Mitglied'); buildTeamList(); };
+  byId('team-cancel').onclick = ()=> byId('dlg-team').close();
+  byId('team-save').onclick = ()=>{
+    const inputs=[...byId('team-list').querySelectorAll('input')];
+    const newList=inputs.map(i=> i.value.trim()).filter(Boolean);
+    if(!newList.length){ alert('Mindestens eine Person erforderlich.'); return; }
+    const oldFirsts=(FILE_STATE.users||[]).map(f=> f.split(' ')[0]);
+    const newFirsts=newList.map(f=> f.split(' ')[0]);
+    oldFirsts.forEach((oldFirst,i)=>{ const newFirst=newFirsts[i]; if(!newFirst) return; if(oldFirst!==newFirst){ const raw=FILE_STATE.data?.[oldFirst]; if(raw!=null){ FILE_STATE.data[newFirst]=raw; delete FILE_STATE.data[oldFirst]; } if(FILE_STATE.active===oldFirst) FILE_STATE.active=newFirst; } });
+    // teamFilter adjust
+    if (Array.isArray(FILE_STATE.teamFilter)) {
+      const mapOldToNew = {};
+      oldFirsts.forEach((oldF,i)=> { const nf=newFirsts[i]; if(oldF && nf) mapOldToNew[oldF]=nf; });
+      const newSet = new Set(newFirsts);
+      FILE_STATE.teamFilter = FILE_STATE.teamFilter
+        .map(f => mapOldToNew[f] || f)
+        .filter(f => newSet.has(f));
+      if (!FILE_STATE.teamFilter.length) FILE_STATE.teamFilter = null;
+    }
+    FILE_STATE.users=newList;
+    byId('dlg-team').close(); renderTabs(); setHeaderFor(ACTIVE_USER==='Team'?'Team':ACTIVE_USER); render();
+  };
+
+  // Team filter dialog
+  function buildTeamFilterListUI(){
+    const host = byId('team-filter-list');
+    host.innerHTML = '';
+    const all = firstsFromUsersList();
+    const sel = new Set(selectedTeamFirsts());
+    all.forEach(first=>{
+      const row = document.createElement('label');
+      row.style.display='grid';
+      row.style.gridTemplateColumns='auto 1fr';
+      row.style.alignItems='center';
+      row.style.gap='10px';
+      const cb = document.createElement('input');
+      cb.type='checkbox'; cb.checked = sel.has(first); cb.dataset.first = first;
+      const sp = document.createElement('span'); sp.textContent = (FILE_STATE.users||[]).find(u=>u.startsWith(first+' ')) || first;
+      row.append(cb, sp);
+      host.append(row);
+    });
+  }
+  byId('btn-team-filter').onclick = ()=>{ buildTeamFilterListUI(); byId('dlg-team-filter').showModal(); };
+  byId('filter-all').onclick = ()=>{ byId('team-filter-list').querySelectorAll('input[type="checkbox"]').forEach(cb=> cb.checked=true); };
+  byId('filter-none').onclick = ()=>{ byId('team-filter-list').querySelectorAll('input[type="checkbox"]').forEach(cb=> cb.checked=false); };
+  byId('filter-cancel').onclick = ()=> byId('dlg-team-filter').close();
+  byId('filter-save').onclick = ()=>{
+    const checked = [...byId('team-filter-list').querySelectorAll('input[type="checkbox"]')]
+      .filter(cb=> cb.checked)
+      .map(cb=> cb.dataset.first);
+    const total = firstsFromUsersList().length;
+    if(!checked.length){ alert('Bitte mindestens eine Person auswählen.'); return; }
+    FILE_STATE.teamFilter = (checked.length === total) ? null : checked;
+    byId('dlg-team-filter').close();
+    render();
+  };
+
+  // Peer dialog
+  function buildPeerDialog(){
+    const selR=byId('sel-reviewer'); const selE=byId('sel-reviewee'); if(!selR||!selE) return;
+    selR.innerHTML=''; selE.innerHTML='';
+    (FILE_STATE.users||[]).forEach(full=>{ const first=full.split(' ')[0]; const o1=document.createElement('option'); o1.value=first; o1.textContent=full; selR.append(o1); const o2=document.createElement('option'); o2.value=first; o2.textContent=full; selE.append(o2); });
+    selR.value=ACTIVE_USER;
+    selE.value=(FILE_STATE.users||[]).map(n=>n.split(' ')[0]).find(f=>f!==ACTIVE_USER) || ACTIVE_USER;
+  }
+  byId('btn-peer').onclick = ()=>{ if(ACTIVE_USER==='Team'){ alert('Im Team-Tab ist Peer-Review deaktiviert. Bitte Personentab wählen.'); return; } buildPeerDialog(); byId('dlg-peer').showModal(); };
+  byId('peer-cancel').addEventListener('click', ()=> byId('dlg-peer').close());
+  byId('peer-confirm').addEventListener('click', ()=>{ const reviewer=byId('sel-reviewer').value; const reviewee=byId('sel-reviewee').value; if(!reviewer || !reviewee) return; byId('dlg-peer').close(); enterPeerMode(reviewer, reviewee); });
+  byId('peer-pill').addEventListener('click', ()=> exitPeerMode());
+
+  // Reference view select
+  byId('sel-ref-view').addEventListener('change', ()=>{
+    FILE_STATE.viewRefLevel = byId('sel-ref-view').value || '';
+    render();
+  });
+
+  // Reference editor dialog
+  function renderRefEditor(){
+    ensureRefs();
+    const level = byId('ref-level').value;
+    const host = byId('ref-editor');
+    const filter = (byId('ref-search').value||'').trim().toLowerCase();
+    host.innerHTML='';
+    const grid = document.createElement('div');
+    grid.style.display='grid';
+    grid.style.gridTemplateColumns='1.2fr 1fr auto';
+    grid.style.gap='8px 10px';
+    const h1=document.createElement('div'); h1.className='cat-name'; h1.textContent='Kategorie';
+    const h2=document.createElement('div'); h2.className='cat-name'; h2.textContent='Skill';
+    const h3=document.createElement('div'); h3.className='cat-name'; h3.textContent='Wert (0–5)';
+    grid.append(h1,h2,h3);
+
+    const allCats = new Map();
+    Object.keys(FILE_STATE.data||{}).forEach(first=>{
+      const d=ensureUserData(first);
+      (d.categories||[]).forEach(c=>{
+        if(!allCats.has(c.name)) allCats.set(c.name, new Set());
+        c.items.forEach(it=> allCats.get(c.name).add(it.n));
+      });
+    });
+    (DEFAULT_DATA.categories||[]).forEach(c=>{
+      if(!allCats.has(c.name)) allCats.set(c.name, new Set());
+      c.items.forEach(it=> allCats.get(c.name).add(it.n));
+    });
+
+    [...allCats.keys()].sort((a,b)=>a.localeCompare(b)).forEach(catName=>{
+      const skills=[...allCats.get(catName)].sort((a,b)=>a.localeCompare(b));
+      skills.forEach(sk=>{
+        if(filter && !(catName.toLowerCase().includes(filter)||sk.toLowerCase().includes(filter))) return;
+        const catDiv=document.createElement('div'); catDiv.textContent=catName; catDiv.style.color='#cdd5ff';
+        const skDiv=document.createElement('div'); skDiv.textContent=sk;
+        const valDiv=document.createElement('div');
+        const inp=document.createElement('input'); inp.type='number'; inp.min='0'; inp.max='5'; inp.step='1'; inp.value=String(getRefVal(level,catName,sk)||0); inp.className='search'; inp.style.width='80px';
+        inp.addEventListener('input', ()=>{ const v=clamp5(parseInt(inp.value,10)||0); FILE_STATE.refs[level][skillKey(catName,sk)]=v; });
+        valDiv.append(inp);
+        grid.append(catDiv, skDiv, valDiv);
+      });
+    });
+
+    host.append(grid);
+  }
+  byId('btn-ref-edit').addEventListener('click', ()=>{ ensureRefs(); byId('ref-level').value='Junior'; byId('ref-search').value=''; renderRefEditor(); byId('dlg-ref').showModal(); });
+  byId('ref-level').addEventListener('change', renderRefEditor);
+  byId('ref-search').addEventListener('input', renderRefEditor);
+  byId('ref-fill-j').addEventListener('click', ()=>{ ensureRefs(); Object.keys(FILE_STATE.refs['Junior']).forEach(k=> FILE_STATE.refs['Junior'][k]=1); renderRefEditor(); });
+  byId('ref-fill-p').addEventListener('click', ()=>{ ensureRefs(); Object.keys(FILE_STATE.refs['Professional']).forEach(k=> FILE_STATE.refs['Professional'][k]=3); renderRefEditor(); });
+  byId('ref-fill-s').addEventListener('click', ()=>{ ensureRefs(); Object.keys(FILE_STATE.refs['Senior']).forEach(k=> FILE_STATE.refs['Senior'][k]=4); renderRefEditor(); });
+  byId('ref-fill-l').addEventListener('click', ()=>{ ensureRefs(); Object.keys(FILE_STATE.refs['Lead']).forEach(k=> FILE_STATE.refs['Lead'][k]=5); renderRefEditor(); });
+  byId('ref-cancel').addEventListener('click', ()=> byId('dlg-ref').close());
+  byId('ref-save').addEventListener('click', ()=>{ byId('dlg-ref').close(); render(); });
+
+  // PDF dialog & generation
+  byId('btn-pdf').addEventListener('click', ()=>{
+    buildPdfList();
+    byId('pdf-include-ref').checked = !!FILE_STATE.pdfIncludeRef;
+    byId('pdf-ref-level').value = FILE_STATE.pdfRefLevel || 'Senior';
+    byId('pdf-ref-level').disabled = !byId('pdf-include-ref').checked;
+    byId('dlg-pdf').showModal();
+  });
+  function buildPdfList(){
+    const host=byId('pdf-list'); host.innerHTML='';
+    const all = [...(FILE_STATE.users||[]).map(u=>u.split(' ')[0]), 'Team'];
+    all.forEach(first=>{
+      const label=document.createElement('label'); label.style.display='grid'; label.style.gridTemplateColumns='auto 1fr'; label.style.alignItems='center'; label.style.gap='10px';
+      const cb=document.createElement('input'); cb.type='checkbox'; cb.checked = (FILE_STATE.pdfSel||[]).includes(first) || (!FILE_STATE.pdfSel && (first==='Team' || first===ACTIVE_USER));
+      cb.dataset.first=first;
+      const span=document.createElement('span'); span.textContent = (first==='Team'?'Team':fullNameFor(first));
+      label.append(cb,span);
+      host.append(label);
+    });
+  }
+  byId('pdf-all').addEventListener('click', ()=>{ byId('pdf-list').querySelectorAll('input[type="checkbox"]').forEach(cb=> cb.checked=true); });
+  byId('pdf-none').addEventListener('click', ()=>{ byId('pdf-list').querySelectorAll('input[type="checkbox"]').forEach(cb=> cb.checked=false); });
+  byId('pdf-include-ref').addEventListener('change', (e)=>{ byId('pdf-ref-level').disabled = !e.target.checked; });
+  byId('pdf-cancel').addEventListener('click', ()=> byId('dlg-pdf').close());
+  byId('pdf-confirm').addEventListener('click', ()=>{
+    const sels=[...byId('pdf-list').querySelectorAll('input[type="checkbox"]')].filter(cb=>cb.checked).map(cb=>cb.dataset.first);
+    if(!sels.length){ alert('Bitte mindestens ein Profil auswählen.'); return; }
+    FILE_STATE.pdfSel = sels;
+    FILE_STATE.pdfIncludeRef = byId('pdf-include-ref').checked;
+    FILE_STATE.pdfRefLevel = byId('pdf-ref-level').value;
+    byId('dlg-pdf').close();
+    buildAndPrintSheets(sels, FILE_STATE.pdfIncludeRef ? FILE_STATE.pdfRefLevel : null);
+  });
+
+  function sheetHTMLForUser(first, refLevel){
+    const title = (first==='Team') ? 'Team' : fullNameFor(first);
+    const d = (first==='Team') ? computeTeamState() : ensureUserData(first);
+    const rows = [];
+    d.categories.forEach(c=>{
+      rows.push(`<tr class="pdf-cat"><td colspan="4">${c.name}</td></tr>`);
+      c.items.forEach(it=>{
+        const v = clamp5(it.v);
+        const ref = refLevel ? getRefVal(refLevel, c.name, it.n) : null;
+        rows.push(`<tr><td>${c.name}</td><td>${it.n}</td><td class="val-cell">${v}</td><td class="bars-cell">${pdfBarsHTML(v, ref)}</td></tr>`);
+      });
+    });
+    const refLabel = refLevel ? `<div class="ref-note"><b>Referenz:</b> ${refLevel} (zusätzlicher Balken)</div>` : '';
+    return `
+      <div class="sheet">
+        <h2>${title} — Skills (0–5)</h2>
+        <div class="legend">
+          <span class="pill">IST: farbiger Balken</span>
+          ${refLevel ? `<span class="pill">Referenz: ${refLevel} (gold)</span>` : ``}
+        </div>
+        ${refLabel}
+        <table class="pdf-table" aria-label="Skills-Tabelle">
+          <thead><tr><th>Kategorie</th><th>Skill</th><th>Wert</th><th>Balken</th></tr></thead>
+          <tbody>
+            ${rows.join('\n')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  function buildAndPrintSheets(firsts, refLevel){
+    const root=byId('print-root');
+    root.innerHTML = firsts.map(f=> sheetHTMLForUser(f, refLevel)).join('\n');
+    // Nur #print-root wird gedruckt (siehe @media print)
+    window.print();
+    setTimeout(()=>{ root.innerHTML=''; }, 500);
+  }
+
+  // --- Inline editing header ---
+  byId('display-name').addEventListener('blur', ()=>{
+    const newFull=byId('display-name').textContent.trim(); if(!newFull) return;
+    const idx=(FILE_STATE.users||[]).findIndex(f=> f.split(' ')[0]===ACTIVE_USER); if(idx>=0){
+      const oldFirst=ACTIVE_USER;
+      const newFirst=(newFull.split(' ')[0]||oldFirst);
+      if(newFirst!==oldFirst){
+        const raw=FILE_STATE.data?.[oldFirst];
+        if(raw!=null){ FILE_STATE.data[newFirst]=raw; delete FILE_STATE.data[oldFirst]; }
+        ACTIVE_USER=newFirst; FILE_STATE.active=newFirst;
+      }
+      FILE_STATE.users[idx]=newFull; byId('avatar').textContent=initials(newFull); renderTabs();
+    }
+  });
+  byId('subtitle').addEventListener('input', ()=>{ const t=getSubtitle(); if(!state.meta) state.meta={}; state.meta.subtitle=t; state.meta.updated=new Date().toISOString(); });
+
+  // --- Boot ---
+  function bootFromFileState(){
+    try{
+      (FILE_STATE.users||[]).forEach(full=>{ const first=full.split(' ')[0]; ensureUserData(first); });
+      ensureRefs();
+      ACTIVE_USER = FILE_STATE.active || 'Christian';
+      state = ensureUserData(ACTIVE_USER);
+      applyTheme(ACTIVE_USER);
+      setHeaderFor(ACTIVE_USER==='Team'?'Team':ACTIVE_USER);
+      renderTabs();
+      activeCategory = Number.isInteger(state.meta?.activeCategory)? state.meta.activeCategory : 0;
+      updateAddBtnLabel();
+      byId('sel-ref-view').value = FILE_STATE.viewRefLevel || '';
+      render();
+    }catch(e){
+      console.error(e);
+      alert('Beim Initialisieren gab es ein Problem: '+e.message);
+    }
+  }
+
+  // Reset current tab
+  byId('btn-reset').onclick = ()=>{
+    if(!confirm('Alle Werte auf Defaults zurücksetzen (nur aktueller Tab)?')) return;
+    const d = deepClone(DEFAULT_DATA);
+    d.meta.owner = fullNameFor(ACTIVE_USER);
+    ensureOrient(d);
+    FILE_STATE.data[ACTIVE_USER] = d;
+    state = d;
+    render();
+  };
+
+  // Pfeil-Feinschritte
+  document.addEventListener('keydown', (e)=>{ if(e.shiftKey && (e.key==='ArrowLeft' || e.key==='ArrowRight')){ const active=document.activeElement; if(active && active.classList.contains('range')){ e.preventDefault(); const step=(e.key==='ArrowLeft' ? -1 : +1); active.value=String(clamp5(parseInt(active.value,10)+step)); active.dispatchEvent(new Event('input',{bubbles:true})); } } });
+
+  // Go!
+  applyTheme(ACTIVE_USER);
+  bootFromFileState();
+  </script><div class="live-hint"></div>
+
+  <noscript>
+    <div style="margin:16px; padding:12px; border-radius:12px; background:#fff3cd; color:#222; border:1px solid #ffe69c;">
+      <b>JavaScript ist deaktiviert.</b> Bitte aktiviere JavaScript oder öffne die Datei lokal im Browser.
+    </div>
+  </noscript>
+
+
+</body></html>
