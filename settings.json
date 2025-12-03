@@ -1,0 +1,319 @@
+{
+  "schemaVersion": 21,
+  "teams": [
+    {
+      "id": "team_vvehg4w",
+      "name": "Neues Team",
+      "color": "#ffd166",
+      "members": [],
+      "filterMemberIds": null,
+      "activeMemberId": null
+    },
+    {
+      "id": "team_kcg16kt",
+      "name": "Neues Team",
+      "color": "#ffd166",
+      "members": [
+        {
+          "id": "member_nt1oqod",
+          "name": "sfsdf",
+          "role": "POs"
+        },
+        {
+          "id": "member_zgqnfdn",
+          "name": "cfff",
+          "role": "POs"
+        }
+      ],
+      "filterMemberIds": null,
+      "activeMemberId": "member_zgqnfdn"
+    }
+  ],
+  "activeTeamId": "team_kcg16kt",
+  "activeMemberId": "member_zgqnfdn",
+  "data": {
+    "member_nt1oqod": {
+      "meta": {
+        "owner": "sfsdf",
+        "role": "POs",
+        "subtitle": "",
+        "updated": "2025-12-03T23:26:19.182Z"
+      },
+      "categories": [
+        {
+          "name": "Agile:",
+          "items": [
+            {
+              "n": "Agile Prinzipien anwenden",
+              "v": 2
+            },
+            {
+              "n": "Agile Tools nutzen",
+              "v": 2
+            },
+            {
+              "n": "Backlock Management",
+              "v": 0
+            },
+            {
+              "n": "Scaling Agile",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Methodenkompetenz:",
+          "items": [
+            {
+              "n": "Priorisierungsmethoden",
+              "v": 0
+            },
+            {
+              "n": "Scrum",
+              "v": 0
+            },
+            {
+              "n": "Kanban",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Produktmanagement:",
+          "items": [
+            {
+              "n": "Produktlebenszyklus Management",
+              "v": 0
+            },
+            {
+              "n": "Business Case Development",
+              "v": 0
+            },
+            {
+              "n": "Machbarkeitsanalyse",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Projektmanagement:",
+          "items": [
+            {
+              "n": "Projektplanung",
+              "v": 0
+            },
+            {
+              "n": "Projektsteuerung",
+              "v": 0
+            },
+            {
+              "n": "Ergebnissicherung",
+              "v": 0
+            },
+            {
+              "n": "Risikomanagement",
+              "v": 0
+            },
+            {
+              "n": "Projekt Controlling",
+              "v": 0
+            },
+            {
+              "n": "Stakeholder Analyse",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Reporting:",
+          "items": [
+            {
+              "n": "Kennzahlenanalyse",
+              "v": 0
+            },
+            {
+              "n": "Monitoring",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Requirements Management:",
+          "items": [
+            {
+              "n": "Schnittstellenmanagement",
+              "v": 0
+            },
+            {
+              "n": "Anforderungserhebung",
+              "v": 0
+            },
+            {
+              "n": "Anforderungsanalyse",
+              "v": 0
+            },
+            {
+              "n": "Anforderungsdokumentation",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "User Research:",
+          "items": [
+            {
+              "n": "Analyse der Benutzerbedürfnisse",
+              "v": 0
+            },
+            {
+              "n": "Usability Testing",
+              "v": 0
+            }
+          ]
+        }
+      ]
+    },
+    "member_zgqnfdn": {
+      "meta": {
+        "owner": "cfff",
+        "role": "POs",
+        "subtitle": "",
+        "updated": "2025-12-03T23:29:11.445Z"
+      },
+      "categories": [
+        {
+          "name": "Agile:",
+          "items": [
+            {
+              "n": "Agile Prinzipien anwenden",
+              "v": 0
+            },
+            {
+              "n": "Agile Tools nutzen",
+              "v": 0
+            },
+            {
+              "n": "Backlock Management",
+              "v": 0
+            },
+            {
+              "n": "Scaling Agile",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Methodenkompetenz:",
+          "items": [
+            {
+              "n": "Priorisierungsmethoden",
+              "v": 0
+            },
+            {
+              "n": "Scrum",
+              "v": 0
+            },
+            {
+              "n": "Kanban",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Produktmanagement:",
+          "items": [
+            {
+              "n": "Produktlebenszyklus Management",
+              "v": 0
+            },
+            {
+              "n": "Business Case Development",
+              "v": 0
+            },
+            {
+              "n": "Machbarkeitsanalyse",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Projektmanagement:",
+          "items": [
+            {
+              "n": "Projektplanung",
+              "v": 0
+            },
+            {
+              "n": "Projektsteuerung",
+              "v": 0
+            },
+            {
+              "n": "Ergebnissicherung",
+              "v": 0
+            },
+            {
+              "n": "Risikomanagement",
+              "v": 0
+            },
+            {
+              "n": "Projekt Controlling",
+              "v": 0
+            },
+            {
+              "n": "Stakeholder Analyse",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Reporting:",
+          "items": [
+            {
+              "n": "Kennzahlenanalyse",
+              "v": 0
+            },
+            {
+              "n": "Monitoring",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Requirements Management:",
+          "items": [
+            {
+              "n": "Schnittstellenmanagement",
+              "v": 0
+            },
+            {
+              "n": "Anforderungserhebung",
+              "v": 0
+            },
+            {
+              "n": "Anforderungsanalyse",
+              "v": 0
+            },
+            {
+              "n": "Anforderungsdokumentation",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "User Research:",
+          "items": [
+            {
+              "n": "Analyse der Benutzerbedürfnisse",
+              "v": 0
+            },
+            {
+              "n": "Usability Testing",
+              "v": 0
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "peer": {}
+}
