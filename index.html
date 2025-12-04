@@ -6,8 +6,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     :root{
-      --bg:#0f1220; --bg2:#0b0e1a; --card:#171a2b; --muted:#a9b0c7; --text:#e8ecff;
-      --accent:#7aa2ff; --accent2:#5cf2c7; --danger:#ff6b6b;
+      --bg:#0f1220;
+      --bg2:#0b0e1a;
+      --card:#171a2b;
+      --muted:#a9b0c7;
+      --text:#e8ecff;
+      --accent:#7aa2ff;
+      --accent2:#5cf2c7;
+      --accent-dark:#3d4b7a;
+      --danger:#ff6b6b;
       --slider-track-h: 14px;
       --slider-thumb: 24px;
       --del-size: 22px;
@@ -128,8 +135,22 @@
       clip:rect(0,0,0,0) !important; white-space:nowrap !important; border:0 !important;
     }
     .row.team-row{grid-template-columns:1.2fr 3fr 80px}
-    .bar{height:10px; background:var(--bar-bg); border-radius:999px; position:relative; overflow:hidden}
-    .bar-fill{position:absolute; inset:0 0 0 0; width:0%; background:linear-gradient(90deg, var(--accent), var(--accent2)); transition:width .2s}
+    .bar{
+      height:10px; background:var(--bar-bg); border-radius:999px;
+      position:relative; overflow:hidden
+    }
+    .bar-fill{
+      position:absolute; inset:0 0 0 0; width:0%;
+      background:linear-gradient(90deg, var(--accent), var(--accent2));
+      transition:width .2s
+    }
+    /* neuer Balken: Kategorie-Ø in dunklerer Teamfarbe */
+    .bar-fill-avg{
+      position:absolute; inset:0 0 0 0; width:0%;
+      background:var(--accent-dark);
+      opacity:.7;
+      transition:width .2s;
+    }
 
     /* Peer-Badge */
     .delta-chip{
@@ -184,6 +205,7 @@
         <span class="chip" id="profile-pill">Keine Auswahl</span>
         <span class="chip hidden" id="peer-pill">Peer: –</span>
         <button id="btn-peer" class="ghost">Peer-Review</button>
+        <button id="btn-role-save" class="ghost">Rolle speichern</button>
         <button id="btn-pdf" class="ghost">PDF</button>
         <button id="btn-export-json">Export JSON</button>
         <input type="file" id="import-file" class="hidden" accept="application/json">
@@ -213,7 +235,7 @@
       <div id="categories"></div>
 
       <div class="footer">
-        <div class="note">Alle Änderungen (inkl. Peer-Review) werden automatisch in <b>Settings.json</b> gespeichert.</div>
+        <div class="note">Alle Änderungen (inkl. Peer-Review & Rollen) werden automatisch in <b>Settings.json</b> gespeichert.</div>
         <div class="tag">Shift+←/→ für Feinschritte auf den Slidern</div>
       </div>
     </div>
@@ -324,6 +346,18 @@
       .replace(/"/g,'&quot;');
     const newId = prefix => `${prefix}_${Math.random().toString(36).slice(2,9)}`;
 
+    function darkerHex(hex, factor=0.6){
+      if(!/^#?[0-9a-f]{6}$/i.test(hex||'')) return '#3d4b7a';
+      const h = hex.replace('#','');
+      let r = parseInt(h.slice(0,2),16);
+      let g = parseInt(h.slice(2,4),16);
+      let b = parseInt(h.slice(4,6),16);
+      r = Math.max(0, Math.min(255, Math.round(r*factor)));
+      g = Math.max(0, Math.min(255, Math.round(g*factor)));
+      b = Math.max(0, Math.min(255, Math.round(b*factor)));
+      return `rgb(${r},${g},${b})`;
+    }
+
     function defaultProfile(){
       return {
         meta: {
@@ -338,13 +372,25 @@
 
     function defaultSettings(){
       return {
-        schemaVersion: 21,
+        schemaVersion: 22,
         teams: [],
         activeTeamId: null,
         activeMemberId: null,
         data: {},
-        peer: {}      // reviewerId -> revieweeId -> { skillKey: value }
+        peer: {},
+        roles: {
+          "POs": { "label": "POs" },
+          "PjMs": { "label": "PjMs" }
+        }
       };
+    }
+
+    function getAllRoles(){
+      const r = (SETTINGS.roles && typeof SETTINGS.roles==='object') ? SETTINGS.roles : {};
+      return Object.keys(r).map(key=>({
+        key,
+        label: r[key].label || key
+      }));
     }
 
     let SETTINGS = defaultSettings();
@@ -379,12 +425,21 @@
     // ---------------------------
     function migrateSettings(obj){
       if(!obj || typeof obj!=='object') return defaultSettings();
-      if(typeof obj.schemaVersion!=='number' || obj.schemaVersion < 21) obj.schemaVersion = 21;
+      if(typeof obj.schemaVersion!=='number' || obj.schemaVersion < 22) obj.schemaVersion = 22;
       if(!Array.isArray(obj.teams)) obj.teams = [];
       if(!obj.data || typeof obj.data!=='object') obj.data = {};
       if(typeof obj.activeTeamId!=='string' && obj.activeTeamId!==null) obj.activeTeamId = null;
       if(typeof obj.activeMemberId!=='string' && obj.activeMemberId!==null) obj.activeMemberId = null;
       if(!obj.peer || typeof obj.peer!=='object') obj.peer = {};
+      if(!obj.roles || typeof obj.roles!=='object'){
+        obj.roles = {
+          "POs": { "label": "POs" },
+          "PjMs": { "label": "PjMs" }
+        };
+      } else {
+        if(!obj.roles.POs) obj.roles.POs = { label:'POs' };
+        if(!obj.roles.PjMs) obj.roles.PjMs = { label:'PjMs' };
+      }
       return obj;
     }
 
@@ -572,6 +627,7 @@
       const col = (team && team.color) || '#7aa2ff';
       root.style.setProperty('--accent', col);
       root.style.setProperty('--accent2', col);
+      root.style.setProperty('--accent-dark', darkerHex(col, 0.5));
     }
 
     function updateHeader(){
@@ -861,10 +917,9 @@
           h3.onclick = ()=>{ activeCategoryIdx = idx; renderCategories(); };
         }
 
-        // Übersichtsbalken pro Kategorie
+        // Übersichtsbalken pro Kategorie + Ø-Wert
         const items = cat.items || [];
-        const sum = items.reduce((s, it) => s + (Number(it.v) || 0), 0);
-        const avg = items.length ? sum / items.length : 0;
+        let avgValue = 0;
         const summary = document.createElement('div');
         summary.style.display = 'flex';
         summary.style.alignItems = 'center';
@@ -873,14 +928,21 @@
 
         const summaryLabel = document.createElement('span');
         summaryLabel.className = 'tag';
-        summaryLabel.textContent = `Ø ${avg.toFixed(1)} (0–5)`;
 
         const summaryBar = document.createElement('div');
         summaryBar.className = 'bar';
         const summaryFill = document.createElement('div');
         summaryFill.className = 'bar-fill';
-        summaryFill.style.width = Math.max(0, Math.min(100, (avg / 5) * 100)) + '%';
         summaryBar.appendChild(summaryFill);
+
+        function recalcSummary(){
+          const xs = cat.items || [];
+          const sum = xs.reduce((s, it)=> s + (Number(it.v)||0), 0);
+          avgValue = xs.length ? (sum / xs.length) : 0;
+          summaryLabel.textContent = `Ø ${avgValue.toFixed(1)} (0–5)`;
+          summaryFill.style.width = Math.max(0, Math.min(100, (avgValue/5)*100)) + '%';
+        }
+        recalcSummary();
 
         summary.append(summaryLabel, summaryBar);
         section.appendChild(summary);
@@ -897,10 +959,18 @@
             name.textContent = it.n;
             const bar = document.createElement('div');
             bar.className = 'bar';
+
+            // Kategorie-Ø als dunkler Balken im Hintergrund
+            const avgFill = document.createElement('div');
+            avgFill.className = 'bar-fill-avg';
+            avgFill.style.width = Math.max(0, Math.min(100,(avgValue/5)*100)) + '%';
+            bar.appendChild(avgFill);
+
             const fill = document.createElement('div');
             fill.className = 'bar-fill';
             fill.style.width = pct5(it.v) + '%';
             bar.appendChild(fill);
+
             const val = document.createElement('div');
             val.className = 'right';
             val.textContent = String(clamp5(it.v));
@@ -911,6 +981,7 @@
           const memberId = SETTINGS.activeMemberId;
           const isPeer = PEER_MODE.active && PEER_MODE.revieweeId === memberId;
           const reviewerId = PEER_MODE.reviewerId;
+
           (cat.items||[]).forEach((it,iIdx)=>{
             if(search && !it.n.toLowerCase().includes(search) && !cat.name.toLowerCase().includes(search)){
               return;
@@ -982,6 +1053,7 @@
                   const prof = ensureProfile(memberId);
                   prof.meta.updated = new Date().toISOString();
                   scheduleSave();
+                  recalcSummary(); // Ø sofort aktualisieren
                   updatePeerBadge();
                 };
               }
@@ -1033,14 +1105,15 @@
                 setPeerRating(reviewerId, memberId, cat.name, it.n, v);
                 val.textContent = String(v);
                 scheduleSave();
-                renderCategories();
+                renderCategories(); // Peer-Badges & Ø neu
               } else {
                 it.v = v;
                 val.textContent = String(v);
                 const prof = ensureProfile(memberId);
                 prof.meta.updated = new Date().toISOString();
                 scheduleSave();
-                updatePeerBadge();
+                recalcSummary();      // Ø sofort neu
+                updatePeerBadge();    // Peers vs Eigen
                 showHint(range, it.n, v);
               }
             });
@@ -1152,6 +1225,53 @@
     // ---------------------------
     // Team-Dialog (inkl. Rollen-Profil)
     // ---------------------------
+    function buildMemberRow(id, name, role){
+      const row = document.createElement('div');
+      row.className = 'dialog-row';
+      row.style.display='grid';
+      row.style.gridTemplateColumns='1.5fr 1.2fr 1.2fr auto';
+      row.style.gap='8px';
+      row.dataset.memberId = id;
+
+      const nameInput = document.createElement('input');
+      nameInput.className='search';
+      nameInput.placeholder='Name';
+      nameInput.value = name || '';
+
+      const roleSelect = document.createElement('select');
+      roleSelect.className='search';
+
+      const roles = getAllRoles();
+      roleSelect.innerHTML = '';
+      const optEmpty = document.createElement('option');
+      optEmpty.value='';
+      optEmpty.textContent='Rolle wählen…';
+      roleSelect.appendChild(optEmpty);
+      roles.forEach(r=>{
+        const opt=document.createElement('option');
+        opt.value=r.key;
+        opt.textContent=r.label;
+        roleSelect.appendChild(opt);
+      });
+
+      if(role && roles.some(r=>r.key===role)){
+        roleSelect.value = role;
+      }
+
+      const roleText = document.createElement('input');
+      roleText.className='search';
+      roleText.placeholder='Freitext-Rolle';
+      roleText.value = role && !roles.some(r=>r.key===role) ? role : '';
+
+      const del = document.createElement('button');
+      del.textContent='✕';
+      del.title='Mitglied entfernen';
+      del.onclick = ()=> row.remove();
+
+      row.append(nameInput, roleSelect, roleText, del);
+      return row;
+    }
+
     function buildTeamDialog(){
       let team = getActiveTeam();
       if(!team){
@@ -1171,44 +1291,6 @@
       (team.members || []).forEach(m=>{
         list.appendChild(buildMemberRow(m.id, m.name, m.role));
       });
-    }
-
-    function buildMemberRow(id, name, role){
-      const row = document.createElement('div');
-      row.className = 'dialog-row';
-      row.style.display='grid';
-      row.style.gridTemplateColumns='1.5fr 1.2fr 1.2fr auto';
-      row.style.gap='8px';
-      row.dataset.memberId = id;
-
-      const nameInput = document.createElement('input');
-      nameInput.className='search';
-      nameInput.placeholder='Name';
-      nameInput.value = name || '';
-
-      const roleSelect = document.createElement('select');
-      roleSelect.className='search';
-      roleSelect.innerHTML = `
-        <option value="">Rolle wählen…</option>
-        <option value="POs">POs</option>
-        <option value="PjMs">PjMs</option>
-      `;
-      if(role && ['POs','PjMs'].includes(role)){
-        roleSelect.value = role;
-      }
-
-      const roleText = document.createElement('input');
-      roleText.className='search';
-      roleText.placeholder='Freitext-Rolle';
-      roleText.value = role && !['POs','PjMs'].includes(role) ? role : '';
-
-      const del = document.createElement('button');
-      del.textContent='✕';
-      del.title='Mitglied entfernen';
-      del.onclick = ()=> row.remove();
-
-      row.append(nameInput, roleSelect, roleText, del);
-      return row;
     }
 
     function openTeamDialog(){
@@ -1258,11 +1340,12 @@
       if(!m) return;
       const prof = ensureProfile(memberId);
       const roleKey = (prof.meta.role || m.role || '').trim();
-      if(!roleKey || (roleKey !== 'POs' && roleKey !== 'PjMs')) return;
+      if(!roleKey) return;
+      const label = (SETTINGS.roles && SETTINGS.roles[roleKey] && SETTINGS.roles[roleKey].label) || roleKey;
 
       const tmpl = {
         roleKey,
-        label: roleKey,
+        label,
         categories: (prof.categories || []).map(cat => ({
           name: cat.name,
           items: (cat.items || []).map(it => ({
@@ -1289,7 +1372,10 @@
 
       const memberDefs = rows.map(row => {
         const id = row.dataset.memberId || newId('member');
-        const [nameInput, roleSelect, roleText] = row.querySelectorAll('input.search, select.search');
+        const inputs = row.querySelectorAll('input.search, select.search');
+        const nameInput = inputs[0];
+        const roleSelect = inputs[1];
+        const roleText   = inputs[2];
         const name = (nameInput?.value || '').trim();
         const roleKey = roleSelect.value || '';
         const freeRole = (roleText?.value || '').trim();
@@ -1499,6 +1585,49 @@
     }
 
     // ---------------------------
+    // Rollen: aktuelle Profilstruktur als neue Rolle speichern
+    // ---------------------------
+    function saveCurrentProfileAsRole(){
+      const memberId = SETTINGS.activeMemberId;
+      if(!memberId){
+        alert('Rollen können nur aus einem Profil (nicht in der Team-Ansicht) erzeugt werden.');
+        return;
+      }
+      if(PEER_MODE.active){
+        alert('Im Peer-Review-Modus kann keine Rolle gespeichert werden.');
+        return;
+      }
+      const prof = ensureProfile(memberId);
+      const defaultKey = (prof.meta.role || '').replace(/\s+/g,'') || 'NeueRolle';
+      const roleKeyInput = prompt('Kurzname der Rolle (Dateiname, z.B. UXLead):', defaultKey);
+      if(!roleKeyInput) return;
+      const safeKey = roleKeyInput.trim().replace(/[^a-z0-9_\-]/gi,'');
+      if(!safeKey){
+        alert('Ungültiger Rollen-Key. Nur Buchstaben/Zahlen/Unterstrich/Minus.');
+        return;
+      }
+      const labelInput = prompt('Anzeigename der Rolle (z.B. UX Lead):', prof.meta.role || safeKey) || safeKey;
+
+      if(!SETTINGS.roles || typeof SETTINGS.roles!=='object') SETTINGS.roles = {};
+      SETTINGS.roles[safeKey] = { label: labelInput };
+
+      const tmpl = {
+        roleKey: safeKey,
+        label: labelInput,
+        categories: (prof.categories || []).map(cat=>({
+          name: cat.name,
+          items: (cat.items || []).map(it=>({ n: it.n, v: clamp5(it.v) }))
+        }))
+      };
+
+      saveRoleTemplate(safeKey, tmpl);
+      scheduleSave();
+      renderTeamTabs();
+      renderMemberTabs();
+      alert(`Rolle „${labelInput}“ wurde gespeichert und steht nun im Rollen-Dropdown zur Verfügung.`);
+    }
+
+    // ---------------------------
     // Init & Events
     // ---------------------------
     async function init(){
@@ -1641,6 +1770,8 @@
       };
 
       byId('peer-pill').onclick = ()=> exitPeerMode();
+
+      byId('btn-role-save').onclick = ()=> saveCurrentProfileAsRole();
 
       document.addEventListener('keydown', (e)=>{
         if(e.shiftKey && (e.key==='ArrowLeft' || e.key==='ArrowRight')){
