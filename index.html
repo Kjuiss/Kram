@@ -28,6 +28,9 @@
       margin:0;
       font-family:ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
       background:linear-gradient(180deg,var(--bg),var(--bg2));
+      background-attachment:fixed;
+      background-repeat:no-repeat;
+      background-size:cover;
       color:var(--text)
     }
     .container{max-width:1160px; margin:0 auto; padding:28px 18px 80px}
@@ -172,7 +175,7 @@
     .delta-ref{
       background:linear-gradient(90deg, rgba(255,209,102,.22), rgba(255,226,154,.22));
       border-color:#ffd166;
-      color:#fff; /* Text & Icon weiss */
+      color:#fff;
     }
     .delta-ref .badge{
       background:rgba(255,209,102,.25);
@@ -220,16 +223,14 @@
         </div>
       </div>
       <div class="toolbar">
-        <span class="chip" id="profile-pill">Keine Auswahl</span>
         <span class="chip hidden" id="peer-pill">Peer: –</span>
-        <button id="btn-peer" class="ghost">Peer-Review</button>
-        <button id="btn-role-save" class="ghost">Rolle erstellen</button>
-        <button id="btn-ref-edit" class="ghost">Referenzen</button>
-        <button id="btn-pdf" class="ghost">PDF</button>
+        <button id="btn-peer">Peer-Review</button>
+        <button id="btn-role-save">Rolle erstellen</button>
+        <button id="btn-ref-edit">Referenzen</button>
+        <button id="btn-pdf">PDF</button>
         <button id="btn-export-json">Export JSON</button>
         <input type="file" id="import-file" class="hidden" accept="application/json">
         <button id="btn-import">Import JSON</button>
-        <button id="btn-reset">Profil zurücksetzen</button>
       </div>
     </header>
 
@@ -246,8 +247,8 @@
         <button id="btn-add-cat" disabled>+ Kategorie</button>
         <button id="btn-collapse">Alles zuklappen</button>
         <button id="btn-expand">Alles aufklappen</button>
-        <button id="btn-team-manage" class="ghost">Team &amp; Mitglieder</button>
-        <button id="btn-team-filter" class="ghost">Team-Filter</button>
+        <button id="btn-team-manage">Team &amp; Mitglieder</button>
+        <button id="btn-team-filter">Team-Filter</button>
         <button id="btn-new-team">+ Team</button>
 
         <select id="ref-view-level" class="ref-select" title="Referenzprofil Vergleich">
@@ -772,7 +773,6 @@
       const nameEl = byId('display-name');
       const subEl  = byId('subtitle');
       const avatar = byId('avatar');
-      const pill   = byId('profile-pill');
       const refSelect = byId('ref-view-level');
       const refToggle = byId('toggle-ref-delta');
       const peerToggle = byId('toggle-peer-delta');
@@ -784,7 +784,6 @@
         nameEl.textContent = 'Kein Team';
         subEl.textContent  = 'Erstelle ein Team, um zu starten.';
         avatar.textContent = 'TM';
-        pill.textContent   = 'Keine Auswahl';
         document.title     = 'Interactive Skills Matrix';
         applyThemeForTeam(null);
         if(refSelect){ refSelect.value=''; refSelect.disabled=true; }
@@ -799,7 +798,6 @@
         nameEl.textContent = team.name || 'Team';
         subEl.textContent  = 'Team-Ansicht — Gesamtkompetenz über alle Mitglieder';
         avatar.textContent = 'TM';
-        pill.textContent   = 'Team-Ansicht';
         document.title     = `${team.name} — Skills Matrix`;
         if(refSelect){ refSelect.value=''; refSelect.disabled=true; }
         if(refToggle){ refToggle.checked=false; refToggle.disabled=true; }
@@ -821,7 +819,6 @@
         subEl.textContent = customSubtitle || autoSubtitle || 'Profil-Ansicht';
 
         avatar.textContent = initials(m ? m.name : 'TM');
-        pill.textContent   = 'Profil-Ansicht';
         document.title     = `${m ? m.name+' — ' : ''}${team.name || 'Team'} — Skills Matrix`;
 
         if(refSelect){
@@ -882,27 +879,105 @@
     }
 
     function makePeerBadge(delta){
-      const span=document.createElement('span');
-      span.className='delta-chip delta-peer';
-      const badge=document.createElement('span');
-      badge.className='badge';
-      badge.textContent='⇄';
-      const sign=document.createElement('span');
-      sign.className='sign';
-      sign.textContent = (delta>0?'+':'')+String(delta);
+      const span = document.createElement('span');
+      span.className = 'delta-chip delta-peer';
+
+      const badge = document.createElement('span');
+      badge.className = 'badge';
+      badge.textContent = '⇄';
+
+      const sign = document.createElement('span');
+      sign.className = 'sign';
+      sign.textContent = (delta > 0 ? '+' : '') + String(delta);
+
+      const abs = Math.abs(delta);
+      let base;
+      if (delta > 0) {
+        base = [0, 180, 110]; // grün
+      } else if (delta < 0) {
+        base = [210, 70, 70]; // rot
+      } else {
+        base = [220, 190, 0]; // gelb
+      }
+
+      let bgAlpha = 0.18;
+      let badgeAlpha = 0.28;
+      let borderAlpha = 0.65;
+
+      if (abs >= 3) {
+        bgAlpha = 0.40;
+        badgeAlpha = 0.65;
+      } else if (abs >= 2) {
+        bgAlpha = 0.30;
+        badgeAlpha = 0.45;
+      } else if (abs >= 1) {
+        bgAlpha = 0.22;
+        badgeAlpha = 0.35;
+      } else {
+        bgAlpha = 0.18;
+        badgeAlpha = 0.30;
+      }
+
+      const [r, g, b] = base;
+      span.style.backgroundColor = `rgba(${r},${g},${b},${bgAlpha})`;
+      span.style.borderColor      = `rgba(${r},${g},${b},${borderAlpha})`;
+      badge.style.backgroundColor = `rgba(${r},${g},${b},${badgeAlpha})`;
+      badge.style.borderColor     = `rgba(${r},${g},${b},${borderAlpha})`;
+      span.style.color = '#fff';
+      badge.style.color = '#fff';
+
       span.append(badge, document.createTextNode('Δ'), sign);
       return span;
     }
 
     function makeRefBadge(delta, refVal, level){
-      const span=document.createElement('span');
-      span.className='delta-chip delta-ref';
-      const badge=document.createElement('span');
-      badge.className='badge';
-      badge.textContent='★';
-      const sign=document.createElement('span');
-      sign.className='sign';
-      sign.textContent = (delta>0?'+':'')+String(delta);
+      const span = document.createElement('span');
+      span.className = 'delta-chip delta-ref';
+
+      const badge = document.createElement('span');
+      badge.className = 'badge';
+      badge.textContent = '★';
+
+      const sign = document.createElement('span');
+      sign.className = 'sign';
+      sign.textContent = (delta > 0 ? '+' : '') + String(delta);
+
+      const abs = Math.abs(delta);
+      let base;
+      if (delta > 0) {
+        base = [0, 180, 110]; // grün
+      } else if (delta < 0) {
+        base = [210, 70, 70]; // rot
+      } else {
+        base = [220, 190, 0]; // gelb
+      }
+
+      let bgAlpha = 0.18;
+      let badgeAlpha = 0.28;
+      let borderAlpha = 0.65;
+
+      if (abs >= 3) {
+        bgAlpha = 0.40;
+        badgeAlpha = 0.65;
+      } else if (abs >= 2) {
+        bgAlpha = 0.30;
+        badgeAlpha = 0.45;
+      } else if (abs >= 1) {
+        bgAlpha = 0.22;
+        badgeAlpha = 0.35;
+      } else {
+        bgAlpha = 0.18;
+        badgeAlpha = 0.30;
+      }
+
+      const [r, g, b] = base;
+      span.style.backgroundColor = `rgba(${r},${g},${b},${bgAlpha})`;
+      span.style.borderColor      = `rgba(${r},${g},${b},${borderAlpha})`;
+      badge.style.backgroundColor = `rgba(${r},${g},${b},${badgeAlpha})`;
+      badge.style.borderColor     = `rgba(${r},${g},${b},${borderAlpha})`;
+      span.style.color = '#fff';
+      badge.style.color = '#fff';
+
       span.title = `Referenz ${level}: ${refVal}`;
       span.append(badge, document.createTextNode('Δ'), sign);
       return span;
@@ -1014,10 +1089,10 @@
     }
 
     function syncProfileWithRoleTemplateIfNeeded(memberId){
-      const m = findMemberById(memberId);
-      if(!m) return;
+      const member = findMemberById(memberId);
+      if(!member) return;
       const prof = ensureProfile(memberId);
-      const roleKey = resolveRoleKey(m, prof);
+      const roleKey = resolveRoleKey(member, prof);
       if(!roleKey) return;
       const roles = SETTINGS.roles || {};
       const label = (roles[roleKey] && roles[roleKey].label) || roleKey;
@@ -1329,33 +1404,29 @@
             deltaBox.style.gap = '6px';
 
             function updateDeltas(currentSliderVal){
-              deltaBox.innerHTML='';
+              deltaBox.innerHTML = '';
               const selfVal = isPeerView ? baseValue : currentSliderVal;
 
-              if(showPeerDelta){
-                if(isPeerView){
+              // Peer-Δ: immer anzeigen, wenn es Peer-Daten gibt (auch bei 0)
+              if (showPeerDelta) {
+                if (isPeerView) {
                   const d = currentSliderVal - baseValue;
-                  if(d!==0){
-                    deltaBox.appendChild(makePeerBadge(d));
-                  }
+                  deltaBox.appendChild(makePeerBadge(d));
                 } else {
                   const avgPeer = peerAverageForReviewee(memberId, cat.name, it.n);
-                  if(avgPeer!=null){
+                  if (avgPeer != null) {
                     const d = avgPeer - selfVal;
-                    if(d!==0){
-                      deltaBox.appendChild(makePeerBadge(d));
-                    }
+                    deltaBox.appendChild(makePeerBadge(d));
                   }
                 }
               }
 
-              if(showRefDelta && refLevel && roleKey){
+              // Ref-Δ: gleiche Logik – Anzeige auch bei 0
+              if (showRefDelta && refLevel && roleKey) {
                 const rv = getRefVal(roleKey, refLevel, cat.name, it.n);
-                if(rv!=null){
+                if (rv != null) {
                   const d = selfVal - rv;
-                  if(d!==0){
-                    deltaBox.appendChild(makeRefBadge(d, rv, refLevel));
-                  }
+                  deltaBox.appendChild(makeRefBadge(d, rv, refLevel));
                 }
               }
             }
@@ -1410,21 +1481,7 @@
               name.style.opacity = 0.9;
               name.title = 'Im Peer-Review-Modus ist der Name gesperrt.';
               val.title = 'Im Peer-Review-Modus bearbeitest du nur deine Bewertung.';
-              if(showPeerDelta){
-                const d = usedVal - baseValue;
-                if(d!==0){
-                  deltaBox.appendChild(makePeerBadge(d));
-                }
-              }
-              if(showRefDelta && refLevel && roleKey){
-                const rv = getRefVal(roleKey, refLevel, cat.name, it.n);
-                if(rv!=null){
-                  const d = baseValue - rv;
-                  if(d!==0){
-                    deltaBox.appendChild(makeRefBadge(d, rv, refLevel));
-                  }
-                }
-              }
+              updateDeltas(usedVal);
             }
 
             range.addEventListener('input', e=>{
@@ -1972,18 +2029,6 @@
       document.querySelectorAll('.category .grid').forEach(g=> g.style.display='grid');
     }
 
-    function resetCurrentProfile(){
-      const team = getActiveTeam();
-      if(!team || !SETTINGS.activeMemberId){
-        alert('Reset wirkt nur auf das Profil eines Mitglieds (nicht im Team- oder Peer-Modus).');
-        return;
-      }
-      if(!confirm('Alle Kategorien und Skills für dieses Mitglied zurücksetzen?')) return;
-      SETTINGS.data[SETTINGS.activeMemberId] = defaultProfile();
-      scheduleSave();
-      renderCategories();
-    }
-
     // ---------------------------
     // Rollen erstellen (ohne Kategorien)
     // ---------------------------
@@ -2105,40 +2150,70 @@
       const refs = ensureRoleRefs(roleKey);
       const mapLevel = refs[level];
 
-      const grid=document.createElement('div');
-      grid.style.display='grid';
-      grid.style.gridTemplateColumns='1.2fr 1fr auto';
-      grid.style.gap='8px 10px';
-
-      const h1=document.createElement('div'); h1.textContent='Kategorie';
-      const h2=document.createElement('div'); h2.textContent='Skill';
-      const h3=document.createElement('div'); h3.textContent='Ref (0–5)';
-      grid.append(h1,h2,h3);
+      host.innerHTML = '';
 
       cats.forEach(cat=>{
-        (cat.items||[]).forEach(it=>{
-          const catName = cat.name;
-          const skName  = it.n;
-          if(filter && !(catName.toLowerCase().includes(filter)||skName.toLowerCase().includes(filter))) return;
-          const catDiv=document.createElement('div'); catDiv.textContent=catName; catDiv.style.color='#cdd5ff';
-          const skDiv=document.createElement('div'); skDiv.textContent=skName;
-          const valDiv=document.createElement('div');
-          const key=skillKey(catName, skName);
+        const catName = cat.name || '';
+        const items = cat.items || [];
+
+        const filteredItems = items.filter(it=>{
+          const skName = it.n || '';
+          if(!filter) return true;
+          const cMatch = catName.toLowerCase().includes(filter);
+          const sMatch = skName.toLowerCase().includes(filter);
+          return cMatch || sMatch;
+        });
+
+        if(!filteredItems.length) return;
+
+        const catBlock = document.createElement('div');
+        catBlock.style.marginBottom = '12px';
+
+        const catHeader = document.createElement('div');
+        catHeader.textContent = catName;
+        catHeader.style.fontWeight = '600';
+        catHeader.style.color = '#cdd5ff';
+        catHeader.style.marginBottom = '4px';
+
+        const list = document.createElement('div');
+        list.style.display = 'grid';
+        list.style.gridTemplateColumns = '1.6fr auto';
+        list.style.gap = '4px 10px';
+
+        filteredItems.forEach(it=>{
+          const skName = it.n || '';
+          const key = skillKey(catName, skName);
           const current = typeof mapLevel[key]==='number' ? clamp5(mapLevel[key]) : (REF_DEFAULTS[level]||0);
-          const inp=document.createElement('input');
-          inp.type='number'; inp.min='0'; inp.max='5'; inp.step='1'; inp.value=String(current); inp.className='search'; inp.style.width='80px';
+
+          const skLabel = document.createElement('div');
+          skLabel.textContent = skName;
+
+          const inputWrap = document.createElement('div');
+          const inp = document.createElement('input');
+          inp.type='number';
+          inp.min='0';
+          inp.max='5';
+          inp.step='1';
+          inp.value = String(current);
+          inp.className='search';
+          inp.style.width='80px';
           inp.addEventListener('input', ()=>{
-            const v=clamp5(parseInt(inp.value,10)||0);
-            mapLevel[key]=v;
+            const v = clamp5(parseInt(inp.value,10)||0);
+            mapLevel[key] = v;
             scheduleSave();
           });
-          valDiv.append(inp);
-          grid.append(catDiv, skDiv, valDiv);
+
+          inputWrap.appendChild(inp);
+          list.append(skLabel, inputWrap);
         });
+
+        catBlock.append(catHeader, list);
+        host.appendChild(catBlock);
       });
 
-      host.innerHTML='';
-      host.append(grid);
+      if(!host.children.length){
+        host.innerHTML='<div class="note">Keine Einträge für diesen Filter.</div>';
+      }
     }
 
     // ---------------------------
@@ -2220,7 +2295,6 @@
       };
 
       byId('btn-pdf').onclick = ()=> renderPdfAndPrint();
-      byId('btn-reset').onclick = ()=> resetCurrentProfile();
 
       byId('search').addEventListener('input', ()=> renderCategories());
 
