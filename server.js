@@ -1,51 +1,74 @@
-const express = require('express');
-const fs = require('fs');
-const path = require('path');
-
-const app = express();
-const ROOT = __dirname;
-const SETTINGS_PATH = path.join(ROOT, 'Settings.json');
-
-// Body als JSON akzeptieren
-app.use(express.json({ limit: '2mb' }));
-
-// Statische Dateien (index.html, Settings.json, POs.json, PjMs.json, …)
-app.use(express.static(ROOT));
-
-app.get('/', (req, res) => {
-  res.sendFile(path.join(ROOT, 'index.html'));
-});
-
-// Autosave-Endpunkt für das Dashboard
-app.post('/settings', (req, res) => {
-  fs.writeFile(SETTINGS_PATH, JSON.stringify(req.body, null, 2), 'utf8', err => {
-    if (err) {
-      console.error('Fehler beim Schreiben von Settings.json:', err);
-      return res.status(500).json({ ok: false, error: err.message });
+{
+  "roleKey": "PjMs",
+  "label": "PjMs",
+  "categories": [
+    {
+      "name": "Agiles Projektmanagement:",
+      "items": [
+        { "n": "Agile Prinzipien verwenden", "v": 0 },
+        { "n": "Agile Tools nutzen", "v": 0 },
+        { "n": "Backlog Management durchführen", "v": 0 },
+        { "n": "Scaling Agile", "v": 0 }
+      ]
+    },
+    {
+      "name": "Kostenmanagement:",
+      "items": [
+        { "n": "Projektkostenmanagement", "v": 0 }
+      ]
+    },
+    {
+      "name": "Project- & Ressourcenmanagement:",
+      "items": [
+        { "n": "PPP", "v": 0 }
+      ]
+    },
+    {
+      "name": "Projektmanagement:",
+      "items": [
+        { "n": "Projektplanung", "v": 0 },
+        { "n": "Projektsteuerung", "v": 0 },
+        { "n": "Ergebnissicherung", "v": 0 },
+        { "n": "Projekt Controlling", "v": 0 },
+        { "n": "Programmmanagement", "v": 0 },
+        { "n": "Portfolio Management", "v": 0 },
+        { "n": "SMARTe Zielformulierung", "v": 0 },
+        { "n": "Machbarkeitsanalyse", "v": 0 }
+      ]
+    },
+    {
+      "name": "Reporting:",
+      "items": [
+        { "n": "Berichtserstellung", "v": 0 }
+      ]
+    },
+    {
+      "name": "Risikomanagement:",
+      "items": [
+        { "n": "Risikoerkennung", "v": 0 },
+        { "n": "Risikokommunikation", "v": 0 },
+        { "n": "Risikokontrollstrategien", "v": 0 }
+      ]
+    },
+    {
+      "name": "Stakeholder-Management:",
+      "items": [
+        { "n": "Stakeholder Analyse", "v": 0 },
+        { "n": "Engagementplanung", "v": 0 },
+        { "n": "Feedback-Mechanismen", "v": 0 },
+        { "n": "Interessen- und Einflusskartierung", "v": 0 },
+        { "n": "Stakeholder-Identifikation", "v": 0 }
+      ]
+    },
+    {
+      "name": "Teammanagement:",
+      "items": [
+        { "n": "Sicherstellung von Ergebnissen", "v": 0 },
+        { "n": "Teamdynamik managen", "v": 0 },
+        { "n": "Mitarbeitermotivation", "v": 0 },
+        { "n": "Schnittstellenmanagement", "v": 0 },
+        { "n": "Teamführung", "v": 0 }
+      ]
     }
-    res.json({ ok: true });
-  });
-});
-
-// Rollen-Templates aktualisieren (POs.json / PjMs.json)
-app.post('/role/:roleKey', (req, res) => {
-  const roleKey = req.params.roleKey;
-  const safe = roleKey.replace(/[^a-z0-9_\-]/gi, '');
-  if (!safe) {
-    return res.status(400).json({ ok: false, error: 'Ungültiger Rollen-Key' });
-  }
-  const filePath = path.join(ROOT, safe + '.json');
-
-  fs.writeFile(filePath, JSON.stringify(req.body, null, 2), 'utf8', err => {
-    if (err) {
-      console.error('Fehler beim Schreiben von', filePath, err);
-      return res.status(500).json({ ok: false, error: err.message });
-    }
-    res.json({ ok: true });
-  });
-});
-
-const port = 3000;
-app.listen(port, () => {
-  console.log(`Skill Matrix läuft auf http://localhost:${port}`);
-});
+  ]
+}
