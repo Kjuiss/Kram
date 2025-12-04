@@ -57,7 +57,8 @@
     button:hover, select:hover{border-color:rgba(122,162,255,.6)}
     button.primary{background:linear-gradient(180deg, #27335f, #1d264b); border-color:#2f3b6c}
     button.ghost{background:transparent}
-    .chip{font-size:.9rem}
+    .chip{font-size:.9rem; display:inline-flex; align-items:center; gap:6px}
+    .chip input{margin:0}
     .tabs{display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap}
     .tab{
       background:#101633; color:#e8ecff; border:1px solid rgba(255,255,255,.08);
@@ -75,6 +76,7 @@
       color:#e8ecff; border-radius:12px; padding:10px 12px; outline:none
     }
     .search:focus{box-shadow:0 0 0 3px rgba(122,162,255,.25); border-color:#31407b}
+    .ref-select{min-width:170px}
     .category{margin-top:16px; border-radius:14px; padding:10px}
     .category.active{outline:2px solid var(--accent); box-shadow:0 0 0 6px rgba(122,162,255,.12) inset; background:rgba(122,162,255,.06)}
     .category h3{margin:0 0 6px; font-size:1.05rem; color:#cdd5ff; display:flex; align-items:center; gap:8px}
@@ -144,23 +146,39 @@
       background:linear-gradient(90deg, var(--accent), var(--accent2));
       transition:width .2s
     }
-    /* neuer Balken: Kategorie-Ø in dunklerer Teamfarbe */
-    .bar-fill-avg{
-      position:absolute; inset:0 0 0 0; width:0%;
-      background:var(--accent-dark);
-      opacity:.7;
-      transition:width .2s;
+    .summary-fill{
+      background:var(--accent-dark) !important;
     }
 
-    /* Peer-Badge */
+    /* Delta-Badges */
     .delta-chip{
       padding:2px 8px; border-radius:999px; border:1px solid rgba(255,255,255,.18);
       font-size:.8rem; display:inline-flex; align-items:center; gap:6px; font-weight:700
     }
-    .delta-peer{background:linear-gradient(90deg, rgba(122,162,255,.22), rgba(92,242,199,.22)); border-color:rgba(122,162,255,.65); color:#d8e4ff}
-    .delta-chip .badge{display:inline-grid; place-items:center; width:18px; height:18px; border-radius:999px; font-size:.72rem; font-weight:900; line-height:1}
-    .delta-peer .badge{background:rgba(122,162,255,.25); border:1px solid rgba(122,162,255,.65)}
+    .delta-chip .badge{
+      display:inline-grid; place-items:center; width:18px; height:18px;
+      border-radius:999px; font-size:.72rem; font-weight:900; line-height:1
+    }
     .delta-chip .sign{opacity:.95; font-weight:900}
+    .delta-peer{
+      background:linear-gradient(90deg, rgba(122,162,255,.22), rgba(92,242,199,.22));
+      border-color:rgba(122,162,255,.65); color:#d8e4ff
+    }
+    .delta-peer .badge{
+      background:rgba(122,162,255,.25);
+      border:1px solid rgba(122,162,255,.65);
+      color:#fff;
+    }
+    .delta-ref{
+      background:linear-gradient(90deg, rgba(255,209,102,.22), rgba(255,226,154,.22));
+      border-color:#ffd166;
+      color:#fff; /* Text & Icon weiss */
+    }
+    .delta-ref .badge{
+      background:rgba(255,209,102,.25);
+      border:1px solid #ffd166;
+      color:#fff;
+    }
 
     /* PRINT / PDF */
     #print-root{display:none}
@@ -179,7 +197,7 @@
     .dialog-row{display:grid; gap:10px; margin:10px 0}
     .dialog-actions{display:flex; justify-content:space-between; gap:10px; align-items:center}
 
-    /* Team-Farbbutton: quadratisch & deutlich */
+    /* Team-Farbbutton: quadratisch */
     .team-color-square{
       width:34px;
       height:34px;
@@ -205,7 +223,8 @@
         <span class="chip" id="profile-pill">Keine Auswahl</span>
         <span class="chip hidden" id="peer-pill">Peer: –</span>
         <button id="btn-peer" class="ghost">Peer-Review</button>
-        <button id="btn-role-save" class="ghost">Rolle speichern</button>
+        <button id="btn-role-save" class="ghost">Rolle erstellen</button>
+        <button id="btn-ref-edit" class="ghost">Referenzen</button>
         <button id="btn-pdf" class="ghost">PDF</button>
         <button id="btn-export-json">Export JSON</button>
         <input type="file" id="import-file" class="hidden" accept="application/json">
@@ -230,12 +249,22 @@
         <button id="btn-team-manage" class="ghost">Team &amp; Mitglieder</button>
         <button id="btn-team-filter" class="ghost">Team-Filter</button>
         <button id="btn-new-team">+ Team</button>
+
+        <select id="ref-view-level" class="ref-select" title="Referenzprofil Vergleich">
+          <option value="">Kein Referenzprofil</option>
+          <option value="Junior">Junior</option>
+          <option value="Professional">Professional</option>
+          <option value="Senior">Senior</option>
+          <option value="Lead">Lead</option>
+        </select>
+        <label class="chip"><input type="checkbox" id="toggle-ref-delta" checked> Ref‑Δ</label>
+        <label class="chip"><input type="checkbox" id="toggle-peer-delta" checked> Peer‑Δ</label>
       </div>
 
       <div id="categories"></div>
 
       <div class="footer">
-        <div class="note">Alle Änderungen (inkl. Peer-Review & Rollen) werden automatisch in <b>Settings.json</b> gespeichert.</div>
+        <div class="note">Alle Änderungen (inkl. Peer-Review, Rollen &amp; Referenzen) werden automatisch in <b>Settings.json</b> gespeichert.</div>
         <div class="tag">Shift+←/→ für Feinschritte auf den Slidern</div>
       </div>
     </div>
@@ -318,9 +347,39 @@
     <p class="note">Im Peer-Review-Modus bearbeitest du nur deine Bewertung für die ausgewählte Person. Das Original bleibt erhalten.</p>
   </dialog>
 
+  <!-- Dialog: Referenzprofile -->
+  <dialog id="dlg-ref">
+    <h3>Referenzprofile bearbeiten</h3>
+    <div class="dialog-row" style="display:flex; gap:10px; align-items:center; flex-wrap:wrap">
+      <label>Rolle<br>
+        <select id="ref-role-select" class="search"></select>
+      </label>
+      <label>Level<br>
+        <select id="ref-level-select" class="search">
+          <option>Junior</option>
+          <option>Professional</option>
+          <option>Senior</option>
+          <option>Lead</option>
+        </select>
+      </label>
+      <button id="ref-fill-defaults" class="ghost" title="Alle auf Standard setzen">Alle = Standard</button>
+      <input id="ref-search" class="search" placeholder="Filter… (Skill/Kategorie)">
+    </div>
+    <div class="dialog-row" style="max-height:55vh; overflow:auto">
+      <div id="ref-editor-grid"></div>
+    </div>
+    <div class="dialog-actions">
+      <div class="note">Referenzwerte (0–5) werden für Ref‑Δ genutzt und erscheinen optional im PDF.</div>
+      <div>
+        <button id="ref-cancel">Abbrechen</button>
+        <button id="ref-save" class="primary">Schließen</button>
+      </div>
+    </div>
+  </dialog>
+
   <script>
     // ---------------------------
-    // Helpers & State
+    // Helpers & Konstanten
     // ---------------------------
     const byId = id => document.getElementById(id);
     const clamp = (x,min=0,max=5) => Math.max(min, Math.min(max, x));
@@ -328,7 +387,8 @@
     const pct5  = v => (clamp(Number(v),0,5)/5)*100;
     const initials = full => {
       const p=String(full||'').trim().split(/\s+/);
-      return ((p[0]||'').charAt(0)+(p[p.length-1]||'').charAt(0)).toUpperCase() || 'TM';
+      const s=((p[0]||'').charAt(0)+(p[p.length-1]||'').charAt(0)).toUpperCase();
+      return s || 'TM';
     };
     const describeLevel5 = v => ([
       '0: Keine Praxis',
@@ -346,8 +406,16 @@
       .replace(/"/g,'&quot;');
     const newId = prefix => `${prefix}_${Math.random().toString(36).slice(2,9)}`;
 
+    const REF_LEVELS = ['Junior','Professional','Senior','Lead'];
+    const REF_DEFAULTS = {
+      Junior:1,
+      Professional:3,
+      Senior:4,
+      Lead:5
+    };
+
     function darkerHex(hex, factor=0.6){
-      if(!/^#?[0-9a-f]{6}$/i.test(hex||'')) return '#3d4b7a';
+      if(!/^#?[0-9a-f]{6}$/i.test(hex||'')) return '#0f1220';
       const h = hex.replace('#','');
       let r = parseInt(h.slice(0,2),16);
       let g = parseInt(h.slice(2,4),16);
@@ -364,47 +432,58 @@
           owner: '',
           role: '',
           subtitle: '',
-          updated: new Date().toISOString()
+          updated: new Date().toISOString(),
+          refLevel: '',
+          showRefDelta: true,
+          showPeerDelta: true
         },
         categories: []
       };
     }
 
+    function ensureProfileDefaults(p){
+      if(!p.meta || typeof p.meta!=='object') p.meta = {};
+      if(typeof p.meta.owner!=='string') p.meta.owner='';
+      if(typeof p.meta.role!=='string') p.meta.role='';
+      if(typeof p.meta.subtitle!=='string') p.meta.subtitle='';
+      if(typeof p.meta.updated!=='string') p.meta.updated=new Date().toISOString();
+      if(typeof p.meta.refLevel!=='string') p.meta.refLevel='';
+      if(typeof p.meta.showRefDelta!=='boolean') p.meta.showRefDelta=true;
+      if(typeof p.meta.showPeerDelta!=='boolean') p.meta.showPeerDelta=true;
+      if(!Array.isArray(p.categories)) p.categories=[];
+    }
+
     function defaultSettings(){
+      const baseRoles = {
+        "POs": { "label": "POs", "refs": {} },
+        "PjMs": { "label": "PjMs", "refs": {} }
+      };
+      REF_LEVELS.forEach(l=>{
+        Object.keys(baseRoles).forEach(k=>{
+          baseRoles[k].refs[l] = {};
+        });
+      });
       return {
-        schemaVersion: 22,
+        schemaVersion: 23,
         teams: [],
         activeTeamId: null,
         activeMemberId: null,
         data: {},
         peer: {},
-        roles: {
-          "POs": { "label": "POs" },
-          "PjMs": { "label": "PjMs" }
-        }
+        roles: baseRoles
       };
-    }
-
-    function getAllRoles(){
-      const r = (SETTINGS.roles && typeof SETTINGS.roles==='object') ? SETTINGS.roles : {};
-      return Object.keys(r).map(key=>({
-        key,
-        label: r[key].label || key
-      }));
     }
 
     let SETTINGS = defaultSettings();
     let saveTimer = null;
     let activeCategoryIdx = 0;
 
-    // Peer-Mode-Info
     const PEER_MODE = {
       active: false,
       reviewerId: null,
       revieweeId: null
     };
 
-    // Live hint bubble
     const hintEl = (()=>{ const d=document.createElement('div'); d.className='live-hint'; document.body.appendChild(d); return d; })();
     let hintTimer=null;
     function showHint(range, name, value){
@@ -420,26 +499,68 @@
       hintTimer=setTimeout(()=>{ hintEl.style.opacity='0'; }, 900);
     }
 
+    function getAllRoles(){
+      const r = (SETTINGS.roles && typeof SETTINGS.roles==='object') ? SETTINGS.roles : {};
+      return Object.keys(r).map(key=>({
+        key,
+        label: r[key].label || key
+      }));
+    }
+
+    async function saveRoleTemplate(roleKey, tmpl){
+      try{
+        await fetch('/role/' + encodeURIComponent(roleKey), {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify(tmpl)
+        });
+      }catch(e){
+        console.warn('Rollen-Template konnte nicht gespeichert werden:', roleKey, e);
+      }
+    }
+
+    function ensureRoleExistsForLabel(label){
+      const lab = (label||'').trim();
+      if(!lab) return '';
+      if(!SETTINGS.roles || typeof SETTINGS.roles!=='object') SETTINGS.roles = {};
+      for(const key of Object.keys(SETTINGS.roles)){
+        if(SETTINGS.roles[key].label === lab) return key;
+      }
+      let safeKey = lab.replace(/[^a-z0-9_\-]/gi,'');
+      if(!safeKey) safeKey = 'Role_' + Math.random().toString(36).slice(2,7);
+      if(!SETTINGS.roles[safeKey]){
+        SETTINGS.roles[safeKey] = { label: lab, refs:{} };
+        REF_LEVELS.forEach(l=>{
+          SETTINGS.roles[safeKey].refs[l] = {};
+        });
+        saveRoleTemplate(safeKey, { roleKey: safeKey, label: lab, categories: [] });
+      }
+      return safeKey;
+    }
+
     // ---------------------------
     // Settings laden/speichern
     // ---------------------------
     function migrateSettings(obj){
       if(!obj || typeof obj!=='object') return defaultSettings();
-      if(typeof obj.schemaVersion!=='number' || obj.schemaVersion < 22) obj.schemaVersion = 22;
+      if(typeof obj.schemaVersion!=='number' || obj.schemaVersion < 23) obj.schemaVersion = 23;
       if(!Array.isArray(obj.teams)) obj.teams = [];
       if(!obj.data || typeof obj.data!=='object') obj.data = {};
       if(typeof obj.activeTeamId!=='string' && obj.activeTeamId!==null) obj.activeTeamId = null;
       if(typeof obj.activeMemberId!=='string' && obj.activeMemberId!==null) obj.activeMemberId = null;
       if(!obj.peer || typeof obj.peer!=='object') obj.peer = {};
-      if(!obj.roles || typeof obj.roles!=='object'){
-        obj.roles = {
-          "POs": { "label": "POs" },
-          "PjMs": { "label": "PjMs" }
-        };
-      } else {
-        if(!obj.roles.POs) obj.roles.POs = { label:'POs' };
-        if(!obj.roles.PjMs) obj.roles.PjMs = { label:'PjMs' };
-      }
+      if(!obj.roles || typeof obj.roles!=='object') obj.roles = {};
+      if(!obj.roles.POs) obj.roles.POs = { label:'POs', refs:{} };
+      if(!obj.roles.PjMs) obj.roles.PjMs = { label:'PjMs', refs:{} };
+      Object.keys(obj.roles).forEach(key=>{
+        const r = obj.roles[key];
+        if(!r || typeof r!=='object') obj.roles[key] = { label:key, refs:{} };
+        if(typeof obj.roles[key].label!=='string') obj.roles[key].label = key;
+        if(!obj.roles[key].refs || typeof obj.roles[key].refs!=='object') obj.roles[key].refs = {};
+        REF_LEVELS.forEach(l=>{
+          if(!obj.roles[key].refs[l] || typeof obj.roles[key].refs[l]!=='object') obj.roles[key].refs[l] = {};
+        });
+      });
       return obj;
     }
 
@@ -502,15 +623,11 @@
     function ensureProfile(memberId){
       if(!SETTINGS.data) SETTINGS.data = {};
       if(!SETTINGS.data[memberId]){
-        const m = findMemberById(memberId);
-        const p = defaultProfile();
-        if(m){
-          p.meta.owner = m.name || '';
-          p.meta.role  = m.role || '';
-        }
-        SETTINGS.data[memberId] = p;
+        SETTINGS.data[memberId] = defaultProfile();
       }
-      return SETTINGS.data[memberId];
+      const p = SETTINGS.data[memberId];
+      ensureProfileDefaults(p);
+      return p;
     }
 
     function selectedMemberIds(team){
@@ -525,7 +642,7 @@
 
     function computeTeamAggregatedProfile(team){
       const ids = selectedMemberIds(team);
-      const agg = new Map(); // cat -> Map(skill -> {sum,count})
+      const agg = new Map();
       ids.forEach(id=>{
         const prof = ensureProfile(id);
         (prof.categories||[]).forEach(cat=>{
@@ -582,7 +699,7 @@
       if(idx<0) return;
       const team = SETTINGS.teams[idx];
       const memberIds = (team.members||[]).map(m=>m.id);
-      memberIds.forEach(id=>{ if(SETTINGS.data && SETTINGS.data[id]) delete SETTINGS.data[id]; });
+      memberIds.forEach(mid=>{ if(SETTINGS.data && SETTINGS.data[mid]) delete SETTINGS.data[mid]; });
       SETTINGS.peer = {};
       SETTINGS.teams.splice(idx,1);
       if(SETTINGS.activeTeamId===id){
@@ -627,7 +744,28 @@
       const col = (team && team.color) || '#7aa2ff';
       root.style.setProperty('--accent', col);
       root.style.setProperty('--accent2', col);
-      root.style.setProperty('--accent-dark', darkerHex(col, 0.5));
+      root.style.setProperty('--accent-dark', darkerHex(col, 0.6));
+      // Hintergrund an Team-Farbe anpassen (deutlich dunkler)
+      const bg1 = darkerHex(col, 0.25);
+      const bg2 = darkerHex(col, 0.15);
+      root.style.setProperty('--bg', bg1);
+      root.style.setProperty('--bg2', bg2);
+    }
+
+    function resolveRoleKey(member, profile){
+      const roles = SETTINGS.roles || {};
+      const metaRole = (profile.meta && profile.meta.role || '').trim();
+      const memberRole = (member && member.role || '').trim();
+
+      if(metaRole && roles[metaRole]) return metaRole;
+      for(const key of Object.keys(roles)){
+        if(roles[key].label === metaRole) return key;
+      }
+      if(memberRole && roles[memberRole]) return memberRole;
+      for(const key of Object.keys(roles)){
+        if(roles[key].label === memberRole) return key;
+      }
+      return metaRole || memberRole || '';
     }
 
     function updateHeader(){
@@ -635,6 +773,9 @@
       const subEl  = byId('subtitle');
       const avatar = byId('avatar');
       const pill   = byId('profile-pill');
+      const refSelect = byId('ref-view-level');
+      const refToggle = byId('toggle-ref-delta');
+      const peerToggle = byId('toggle-peer-delta');
 
       const team   = getActiveTeam();
       const memberId = SETTINGS.activeMemberId;
@@ -646,24 +787,32 @@
         pill.textContent   = 'Keine Auswahl';
         document.title     = 'Interactive Skills Matrix';
         applyThemeForTeam(null);
+        if(refSelect){ refSelect.value=''; refSelect.disabled=true; }
+        if(refToggle){ refToggle.checked=false; refToggle.disabled=true; }
+        if(peerToggle){ peerToggle.checked=false; peerToggle.disabled=true; }
         return;
       }
 
+      applyThemeForTeam(team);
+
       if(!memberId){
-        // Team-Ansicht
         nameEl.textContent = team.name || 'Team';
         subEl.textContent  = 'Team-Ansicht — Gesamtkompetenz über alle Mitglieder';
         avatar.textContent = 'TM';
         pill.textContent   = 'Team-Ansicht';
         document.title     = `${team.name} — Skills Matrix`;
+        if(refSelect){ refSelect.value=''; refSelect.disabled=true; }
+        if(refToggle){ refToggle.checked=false; refToggle.disabled=true; }
+        if(peerToggle){ peerToggle.checked=false; peerToggle.disabled=true; }
       } else {
-        // Profil-Ansicht
         const m = findMemberById(memberId);
         const prof = ensureProfile(memberId);
         nameEl.textContent = m ? m.name : 'Mitglied';
 
         const parts = [];
-        const roleLabel = (prof.meta.role || (m && m.role) || '').trim();
+        const roleKey = resolveRoleKey(m, prof);
+        const roleObj = SETTINGS.roles && SETTINGS.roles[roleKey];
+        const roleLabel = roleObj ? roleObj.label : prof.meta.role || (m && m.role) || '';
         if(roleLabel) parts.push(roleLabel);
         if(team.name) parts.push(`Team: ${team.name}`);
 
@@ -674,8 +823,20 @@
         avatar.textContent = initials(m ? m.name : 'TM');
         pill.textContent   = 'Profil-Ansicht';
         document.title     = `${m ? m.name+' — ' : ''}${team.name || 'Team'} — Skills Matrix`;
+
+        if(refSelect){
+          refSelect.disabled = false;
+          refSelect.value = prof.meta.refLevel || '';
+        }
+        if(refToggle){
+          refToggle.disabled = false;
+          refToggle.checked = prof.meta.showRefDelta !== false;
+        }
+        if(peerToggle){
+          peerToggle.disabled = false;
+          peerToggle.checked = prof.meta.showPeerDelta !== false;
+        }
       }
-      applyThemeForTeam(team);
     }
 
     // ---------------------------
@@ -729,7 +890,21 @@
       const sign=document.createElement('span');
       sign.className='sign';
       sign.textContent = (delta>0?'+':'')+String(delta);
-      span.append(badge, document.createTextNode('Δ '), sign);
+      span.append(badge, document.createTextNode('Δ'), sign);
+      return span;
+    }
+
+    function makeRefBadge(delta, refVal, level){
+      const span=document.createElement('span');
+      span.className='delta-chip delta-ref';
+      const badge=document.createElement('span');
+      badge.className='badge';
+      badge.textContent='★';
+      const sign=document.createElement('span');
+      sign.className='sign';
+      sign.textContent = (delta>0?'+':'')+String(delta);
+      span.title = `Referenz ${level}: ${refVal}`;
+      span.append(badge, document.createTextNode('Δ'), sign);
       return span;
     }
 
@@ -784,6 +959,116 @@
         const other = members.find(m=>m.id!==activeMember);
         if(other) selReviewee.value = other.id;
       }
+    }
+
+    // ---------------------------
+    // Rollen / Referenzwerte
+    // ---------------------------
+    async function loadRoleTemplate(roleKey){
+      const fileName = roleKey + '.json';
+      try{
+        const resp = await fetch(fileName, { cache:'no-store' });
+        if(!resp.ok) return { roleKey, label: roleKey, categories: [] };
+        const json = await resp.json();
+        if(!Array.isArray(json.categories)) json.categories=[];
+        return json;
+      }catch(e){
+        console.warn('Rollen-Template konnte nicht geladen werden:', roleKey, e);
+        return { roleKey, label: roleKey, categories: [] };
+      }
+    }
+
+    async function applyRoleTemplateToMember(memberId, roleKey){
+      if(!roleKey) return;
+      const tmpl = await loadRoleTemplate(roleKey);
+      if(!tmpl || !Array.isArray(tmpl.categories)) return;
+      const prof = ensureProfile(memberId);
+      prof.categories = tmpl.categories.map(cat=>({
+        name: cat.name,
+        items: (cat.items||[]).map(it=>({ n: it.n, v: clamp5(it.v) }))
+      }));
+      prof.meta.updated = new Date().toISOString();
+    }
+
+    function ensureRoleRefs(roleKey){
+      if(!SETTINGS.roles || typeof SETTINGS.roles!=='object') SETTINGS.roles = {};
+      if(!SETTINGS.roles[roleKey]) SETTINGS.roles[roleKey] = { label: roleKey, refs:{} };
+      const r = SETTINGS.roles[roleKey];
+      if(!r.refs || typeof r.refs!=='object') r.refs = {};
+      REF_LEVELS.forEach(l=>{
+        if(!r.refs[l] || typeof r.refs[l]!=='object') r.refs[l] = {};
+      });
+      return r.refs;
+    }
+
+    function getRefVal(roleKey, level, catName, skillName){
+      if(!roleKey || !level) return null;
+      const roles = SETTINGS.roles || {};
+      const r = roles[roleKey];
+      const key = skillKey(catName, skillName);
+      if(r && r.refs && r.refs[level] && typeof r.refs[level][key]==='number'){
+        return clamp5(r.refs[level][key]);
+      }
+      const base = REF_DEFAULTS[level];
+      return typeof base==='number' ? base : null;
+    }
+
+    function syncProfileWithRoleTemplateIfNeeded(memberId){
+      const m = findMemberById(memberId);
+      if(!m) return;
+      const prof = ensureProfile(memberId);
+      const roleKey = resolveRoleKey(m, prof);
+      if(!roleKey) return;
+      const roles = SETTINGS.roles || {};
+      const label = (roles[roleKey] && roles[roleKey].label) || roleKey;
+
+      const tmpl = {
+        roleKey,
+        label,
+        categories: (prof.categories || []).map(cat=>({
+          name: cat.name,
+          items: (cat.items || []).map(it=>({ n: it.n, v: clamp5(it.v) }))
+        }))
+      };
+      saveRoleTemplate(roleKey, tmpl);
+    }
+
+    function propagateRoleStructureFromMember(memberId){
+      const member = findMemberById(memberId);
+      if(!member) return;
+      const prof = ensureProfile(memberId);
+      const roleKey = resolveRoleKey(member, prof);
+      if(!roleKey) return;
+
+      const canonicalCats = (prof.categories || []).map(cat => ({
+        name: cat.name,
+        items: (cat.items || []).map(it => ({ n: it.n }))
+      }));
+
+      SETTINGS.teams.forEach(team=>{
+        (team.members || []).forEach(m=>{
+          const mp = ensureProfile(m.id);
+          const memberRoleKey = resolveRoleKey(m, mp);
+          if(memberRoleKey !== roleKey) return;
+
+          const oldCats = mp.categories || [];
+          const catMap = new Map(oldCats.map(c=>[c.name, c]));
+          const newCats = canonicalCats.map(cSpec=>{
+            const existing = catMap.get(cSpec.name);
+            const itemsMap = existing ? new Map((existing.items||[]).map(i=>[i.n, i])) : new Map();
+            const newItems = cSpec.items.map(itSpec=>{
+              const ex = itemsMap.get(itSpec.n);
+              return { n: itSpec.n, v: ex ? clamp5(ex.v) : 0 };
+            });
+            return { name: cSpec.name, items: newItems };
+          });
+          mp.categories = newCats;
+          mp.meta.updated = new Date().toISOString();
+        });
+      });
+
+      syncProfileWithRoleTemplateIfNeeded(memberId);
+      scheduleSave();
     }
 
     // ---------------------------
@@ -876,9 +1161,22 @@
         root.appendChild(infoBar);
       }
 
-      const profile = isTeamView
-        ? computeTeamAggregatedProfile(team)
-        : ensureProfile(SETTINGS.activeMemberId);
+      let profile;
+      if(isTeamView){
+        profile = computeTeamAggregatedProfile(team);
+      } else {
+        profile = ensureProfile(SETTINGS.activeMemberId);
+      }
+
+      let member=null, memberMeta=null, showRefDelta=false, showPeerDelta=false, refLevel='', roleKey='';
+      if(!isTeamView){
+        member = findMemberById(SETTINGS.activeMemberId);
+        memberMeta = profile.meta || {};
+        showRefDelta = memberMeta.showRefDelta !== false;
+        showPeerDelta = memberMeta.showPeerDelta !== false;
+        refLevel = memberMeta.refLevel || '';
+        roleKey = resolveRoleKey(member, profile);
+      }
 
       const categories = profile.categories || [];
       categories.forEach((cat, idx)=>{
@@ -905,19 +1203,27 @@
         if(canEdit){
           titleSpan.title = 'Klick zum Umbenennen';
           titleSpan.onclick = ()=>{
-            const neu = prompt('Neuer Kategoriename:', cat.name);
-            if(!neu || !neu.trim()) return;
+            const memberId = SETTINGS.activeMemberId;
+            if(!memberId) return;
+            const currentName = cat.name;
+            const neu = prompt('Neuer Kategoriename:', currentName);
+            if(!neu || !neu.trim() || neu.trim() === currentName) return;
+            const confirmChange = confirm('Bist du sicher, dass du diesen Kategorienamen ändern willst?');
+            if(!confirmChange) return;
             cat.name = neu.trim();
-            const prof = ensureProfile(SETTINGS.activeMemberId);
+            const prof = ensureProfile(memberId);
             prof.meta.updated = new Date().toISOString();
-            scheduleSave();
-            syncProfileWithRoleTemplateIfNeeded(SETTINGS.activeMemberId);
+            propagateRoleStructureFromMember(memberId);
             renderCategories();
           };
-          h3.onclick = ()=>{ activeCategoryIdx = idx; renderCategories(); };
+          h3.onclick = (ev)=>{
+            if(ev.target === titleSpan) return; // Name-Klick handled oben
+            activeCategoryIdx = idx;
+            renderCategories();
+          };
         }
 
-        // Übersichtsbalken pro Kategorie + Ø-Wert
+        // Kategorie-Ø + Balken
         const items = cat.items || [];
         let avgValue = 0;
         const summary = document.createElement('div');
@@ -932,7 +1238,7 @@
         const summaryBar = document.createElement('div');
         summaryBar.className = 'bar';
         const summaryFill = document.createElement('div');
-        summaryFill.className = 'bar-fill';
+        summaryFill.className = 'bar-fill summary-fill';
         summaryBar.appendChild(summaryFill);
 
         function recalcSummary(){
@@ -960,12 +1266,6 @@
             const bar = document.createElement('div');
             bar.className = 'bar';
 
-            // Kategorie-Ø als dunkler Balken im Hintergrund
-            const avgFill = document.createElement('div');
-            avgFill.className = 'bar-fill-avg';
-            avgFill.style.width = Math.max(0, Math.min(100,(avgValue/5)*100)) + '%';
-            bar.appendChild(avgFill);
-
             const fill = document.createElement('div');
             fill.className = 'bar-fill';
             fill.style.width = pct5(it.v) + '%';
@@ -979,7 +1279,7 @@
           });
         } else {
           const memberId = SETTINGS.activeMemberId;
-          const isPeer = PEER_MODE.active && PEER_MODE.revieweeId === memberId;
+          const isPeerView = PEER_MODE.active && PEER_MODE.revieweeId === memberId;
           const reviewerId = PEER_MODE.reviewerId;
 
           (cat.items||[]).forEach((it,iIdx)=>{
@@ -992,7 +1292,7 @@
             const name = document.createElement('div');
             name.className = 'name';
             name.textContent = it.n;
-            if(!PEER_MODE.active){
+            if(!isPeerView){
               name.title = 'Klick zum Umbenennen';
             }
 
@@ -1008,15 +1308,16 @@
             sliderWrap.className = 'slider';
             const range = document.createElement('input');
             range.type='range'; range.min='0'; range.max='5'; range.step='1';
-            let baseValue = clamp5(it.v);
-            let valueForSlider = baseValue;
 
-            if(isPeer){
+            let baseValue = clamp5(it.v);
+            let sliderValue = baseValue;
+
+            if(isPeerView){
               const peerVal = getPeerRating(reviewerId, memberId, cat.name, it.n);
-              if(peerVal!=null) valueForSlider = peerVal;
+              if(peerVal!=null) sliderValue = peerVal;
             }
 
-            range.value = String(valueForSlider);
+            range.value = String(sliderValue);
             range.className='range';
             range.style.setProperty('--value', pct5(range.value) + '%');
             sliderWrap.appendChild(range);
@@ -1027,60 +1328,78 @@
             deltaBox.style.justifyContent = 'flex-end';
             deltaBox.style.gap = '6px';
 
-            function updatePeerBadge(){
+            function updateDeltas(currentSliderVal){
               deltaBox.innerHTML='';
-              const avgPeer = peerAverageForReviewee(memberId, cat.name, it.n);
-              if(avgPeer!=null){
-                const selfVal = clamp5(it.v);
-                const d = avgPeer - selfVal;
-                if(d!==0){
-                  deltaBox.appendChild(makePeerBadge(d));
+              const selfVal = isPeerView ? baseValue : currentSliderVal;
+
+              if(showPeerDelta){
+                if(isPeerView){
+                  const d = currentSliderVal - baseValue;
+                  if(d!==0){
+                    deltaBox.appendChild(makePeerBadge(d));
+                  }
+                } else {
+                  const avgPeer = peerAverageForReviewee(memberId, cat.name, it.n);
+                  if(avgPeer!=null){
+                    const d = avgPeer - selfVal;
+                    if(d!==0){
+                      deltaBox.appendChild(makePeerBadge(d));
+                    }
+                  }
+                }
+              }
+
+              if(showRefDelta && refLevel && roleKey){
+                const rv = getRefVal(roleKey, refLevel, cat.name, it.n);
+                if(rv!=null){
+                  const d = selfVal - rv;
+                  if(d!==0){
+                    deltaBox.appendChild(makeRefBadge(d, rv, refLevel));
+                  }
                 }
               }
             }
 
-            if(!isPeer){
+            if(!isPeerView){
               val.textContent = String(baseValue);
-              if(!PEER_MODE.active){
-                val.title = 'Klick zum Bearbeiten';
-                val.onclick = ()=>{
-                  const neu = prompt('Neuer Wert (0–5):', String(it.v));
-                  if(neu==null) return;
-                  it.v = clamp5(parseInt(neu,10)||0);
-                  range.value = String(it.v);
-                  range.style.setProperty('--value', pct5(it.v) + '%');
-                  val.textContent = String(it.v);
-                  const prof = ensureProfile(memberId);
-                  prof.meta.updated = new Date().toISOString();
-                  scheduleSave();
-                  recalcSummary(); // Ø sofort aktualisieren
-                  updatePeerBadge();
-                };
-              }
-              if(!PEER_MODE.active){
-                name.onclick = ()=>{
-                  const neu = prompt('Neuer Skill-Name:', it.n);
-                  if(!neu || !neu.trim()) return;
-                  it.n = neu.trim();
-                  const prof = ensureProfile(memberId);
-                  prof.meta.updated = new Date().toISOString();
-                  scheduleSave();
-                  syncProfileWithRoleTemplateIfNeeded(memberId);
-                  renderCategories();
-                };
-                del.onclick = ()=>{
-                  if(!confirm(`„${it.n}“ aus Kategorie „${cat.name}“ entfernen?`)) return;
-                  cat.items.splice(iIdx,1);
-                  const prof = ensureProfile(memberId);
-                  prof.meta.updated = new Date().toISOString();
-                  scheduleSave();
-                  syncProfileWithRoleTemplateIfNeeded(memberId);
-                  renderCategories();
-                };
-              } else {
-                del.disabled = true;
-              }
-              updatePeerBadge();
+              val.title = 'Klick zum Bearbeiten';
+              val.onclick = ()=>{
+                const neu = prompt('Neuer Wert (0–5):', String(it.v));
+                if(neu==null) return;
+                it.v = clamp5(parseInt(neu,10)||0);
+                range.value = String(it.v);
+                range.style.setProperty('--value', pct5(it.v) + '%');
+                val.textContent = String(it.v);
+                const prof = ensureProfile(memberId);
+                prof.meta.updated = new Date().toISOString();
+                scheduleSave();
+                recalcSummary();
+                updateDeltas(it.v);
+              };
+
+              name.onclick = ()=>{
+                const current = it.n;
+                const neu = prompt('Neuer Skill-Name:', current);
+                if(!neu || !neu.trim() || neu.trim() === current) return;
+                const confirmChange = confirm('Bist du sicher, dass du diesen Skill-Namen ändern willst?');
+                if(!confirmChange) return;
+                it.n = neu.trim();
+                const prof = ensureProfile(memberId);
+                prof.meta.updated = new Date().toISOString();
+                propagateRoleStructureFromMember(memberId);
+                renderCategories();
+              };
+
+              del.onclick = ()=>{
+                if(!confirm(`„${it.n}“ aus Kategorie „${cat.name}“ entfernen?`)) return;
+                cat.items.splice(iIdx,1);
+                const prof = ensureProfile(memberId);
+                prof.meta.updated = new Date().toISOString();
+                propagateRoleStructureFromMember(memberId);
+                renderCategories();
+              };
+
+              updateDeltas(baseValue);
             } else {
               const peerVal = getPeerRating(reviewerId, memberId, cat.name, it.n);
               const usedVal = peerVal!=null ? peerVal : baseValue;
@@ -1091,29 +1410,39 @@
               name.style.opacity = 0.9;
               name.title = 'Im Peer-Review-Modus ist der Name gesperrt.';
               val.title = 'Im Peer-Review-Modus bearbeitest du nur deine Bewertung.';
-
-              const d = usedVal - baseValue;
-              if(d!==0){
-                deltaBox.appendChild(makePeerBadge(d));
+              if(showPeerDelta){
+                const d = usedVal - baseValue;
+                if(d!==0){
+                  deltaBox.appendChild(makePeerBadge(d));
+                }
+              }
+              if(showRefDelta && refLevel && roleKey){
+                const rv = getRefVal(roleKey, refLevel, cat.name, it.n);
+                if(rv!=null){
+                  const d = baseValue - rv;
+                  if(d!==0){
+                    deltaBox.appendChild(makeRefBadge(d, rv, refLevel));
+                  }
+                }
               }
             }
 
             range.addEventListener('input', e=>{
               const v = clamp5(parseInt(e.target.value,10)||0);
               range.style.setProperty('--value', pct5(v) + '%');
-              if(isPeer){
+              if(isPeerView){
                 setPeerRating(reviewerId, memberId, cat.name, it.n, v);
                 val.textContent = String(v);
                 scheduleSave();
-                renderCategories(); // Peer-Badges & Ø neu
+                updateDeltas(v);
               } else {
                 it.v = v;
                 val.textContent = String(v);
                 const prof = ensureProfile(memberId);
                 prof.meta.updated = new Date().toISOString();
                 scheduleSave();
-                recalcSummary();      // Ø sofort neu
-                updatePeerBadge();    // Peers vs Eigen
+                recalcSummary();
+                updateDeltas(v);
                 showHint(range, it.n, v);
               }
             });
@@ -1149,62 +1478,171 @@
     // ---------------------------
     // PDF / Druck
     // ---------------------------
-    function pdfBarsHTML(v5){
+    function pdfSkillBar(val, teamColor){
       const W=160, H=10;
-      const wIst = Math.round((clamp5(v5)/5)*W);
+      const w = Math.max(0, Math.min(W, Math.round((clamp5(val)/5)*W)));
+      const col = teamColor || '#7aa2ff';
       return `
 <svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" aria-label="Skillbalken">
-  <defs>
-    <linearGradient id="gIst" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="#7aa2ff"/><stop offset="1" stop-color="#5cf2c7"/>
-    </linearGradient>
-  </defs>
   <rect x="0" y="0" width="${W}" height="${H}" rx="5" ry="5" fill="#11152b" stroke="rgba(0,0,0,.35)"/>
-  <rect x="0.5" y="0.5" width="${Math.max(0,wIst-1)}" height="${H-1}" rx="4.5" ry="4.5" fill="url(#gIst)"/>
+  <rect x="0.5" y="0.5" width="${Math.max(0,w-1)}" height="${H-1}" rx="4.5" ry="4.5" fill="${col}"/>
 </svg>`;
     }
 
-    function buildPdfSheet(profile, title){
-      const rows = [];
+    function pdfCategoryAvgBar(avg, teamColor){
+      const W=100, H=8;
+      const w = Math.max(0, Math.min(W, Math.round((clamp(avg,0,5)/5)*W)));
+      const col = darkerHex(teamColor || '#7aa2ff', 0.6);
+      return `
+<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" aria-label="Kategorie-Ø">
+  <rect x="0" y="0" width="${W}" height="${H}" rx="4" ry="4" fill="#f0f2f7" stroke="#d0d4e0"/>
+  <rect x="0.5" y="0.5" width="${Math.max(0,w-1)}" height="${H-1}" rx="3.5" ry="3.5" fill="${col}"/>
+</svg>`;
+    }
+
+    function buildPdfSheetTeam(profile, title, teamColor){
+      const rows=[];
       (profile.categories||[]).forEach(c=>{
-        rows.push(`<tr class="pdf-cat"><td colspan="3">${escapeHtml(c.name)}</td></tr>`);
-        (c.items||[]).forEach(it=>{
+        const xs = c.items || [];
+        const sum = xs.reduce((s,it)=>s+(Number(it.v)||0),0);
+        const avg = xs.length ? (sum/xs.length) : 0;
+        rows.push(`<tr class="pdf-cat">
+  <td>${escapeHtml(c.name)}</td>
+  <td>Ø ${avg.toFixed(1)} (0–5)</td>
+  <td></td>
+  <td class="bars-cell">${pdfCategoryAvgBar(avg, teamColor)}</td>
+</tr>`);
+        xs.forEach(it=>{
           const v = clamp5(it.v);
           rows.push(`<tr>
-            <td>${escapeHtml(it.n)}</td>
-            <td class="val-cell">${v}</td>
-            <td class="bars-cell">${pdfBarsHTML(v)}</td>
-          </tr>`);
+  <td></td>
+  <td>${escapeHtml(it.n)}</td>
+  <td class="val-cell">${v}</td>
+  <td class="bars-cell">${pdfSkillBar(v, teamColor)}</td>
+</tr>`);
         });
       });
 
       return `
       <div class="sheet">
-        <h2>${escapeHtml(title)} — Skills (0–5)</h2>
+        <h2>${escapeHtml(title)} — Team-Skills (0–5)</h2>
         <table class="pdf-table" aria-label="Skills-Tabelle">
-          <thead><tr><th>Skill</th><th>Wert</th><th>Balken</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Kategorie</th>
+              <th>Skill / Ø</th>
+              <th>Wert</th>
+              <th>Balken</th>
+            </tr>
+          </thead>
           <tbody>${rows.join('\n')}</tbody>
         </table>
       </div>`;
     }
 
-    function renderPdfAndPrint(){
+    function buildPdfSheetMember(memberId, member, team, profile, opts){
+      const teamColor = opts.teamColor;
+      const roleKey   = opts.roleKey;
+      const refLevel  = opts.refLevel;
+      const showRef   = opts.showRefDelta;
+      const showPeer  = opts.showPeerDelta;
+
+      const rows=[];
+      (profile.categories||[]).forEach(c=>{
+        const xs = c.items || [];
+        const sum = xs.reduce((s,it)=>s+(Number(it.v)||0),0);
+        const avg = xs.length ? (sum/xs.length) : 0;
+
+        rows.push(`<tr class="pdf-cat">
+  <td>${escapeHtml(c.name)}</td>
+  <td>Ø ${avg.toFixed(1)} (0–5)</td>
+  ${showRef ? '<td></td><td></td>' : ''}
+  ${showPeer ? '<td></td>' : ''}
+  <td class="bars-cell">${pdfCategoryAvgBar(avg, teamColor)}</td>
+</tr>`);
+
+        xs.forEach(it=>{
+          const v = clamp5(it.v);
+          let refVal=null, dRef=null, peerAvg=null, dPeer=null;
+          if(showRef && refLevel && roleKey){
+            refVal = getRefVal(roleKey, refLevel, c.name, it.n);
+            if(refVal!=null){
+              dRef = v - refVal;
+              if(dRef===0) dRef = null;
+            }
+          }
+          if(showPeer){
+            peerAvg = peerAverageForReviewee(memberId, c.name, it.n);
+            if(peerAvg!=null){
+              dPeer = peerAvg - v;
+              if(dPeer===0) dPeer = null;
+            }
+          }
+
+          rows.push(`<tr>
+  <td></td>
+  <td>${escapeHtml(it.n)}</td>
+  ${showRef ? `<td class="val-cell">${refVal!=null?refVal:''}</td><td class="val-cell">${dRef!=null?((dRef>0?'+':'')+dRef):''}</td>` : ''}
+  ${showPeer ? `<td class="val-cell">${dPeer!=null?((dPeer>0?'+':'')+dPeer):''}</td>` : ''}
+  <td class="bars-cell">${pdfSkillBar(v, teamColor)}</td>
+</tr>`);
+        });
+      });
+
+      const refInfo = (showRef && refLevel) ? ` – Ref: ${refLevel}` : '';
+      const peerInfo = showPeer ? ' – Peer‑Δ aktiviert' : '';
+      const subtitleInfo = [refInfo, peerInfo].filter(Boolean).join('');
+
+      return `
+      <div class="sheet">
+        <h2>${escapeHtml(member.name)} (${escapeHtml(team.name||'Team')}) — Skills (0–5)${escapeHtml(subtitleInfo)}</h2>
+        <table class="pdf-table" aria-label="Skills-Tabelle">
+          <thead>
+            <tr>
+              <th>Kategorie</th>
+              <th>Skill / Ø</th>
+              ${showRef ? `<th>Ref (${escapeHtml(refLevel||'')})</th><th>Δ Ref</th>` : ''}
+              ${showPeer ? '<th>Δ Peer</th>' : ''}
+              <th>Balken</th>
+            </tr>
+          </thead>
+          <tbody>${rows.join('\n')}</tbody>
+        </table>
+      </div>`;
+    }
+
+    async function renderPdfAndPrint(){
       const root = byId('print-root');
       const team = getActiveTeam();
       if(!team){
         alert('Kein Team ausgewählt.');
         return;
       }
+      const teamColor = team.color || '#7aa2ff';
       const memberId = SETTINGS.activeMemberId;
-      let profile, title;
+
+      let html = '';
       if(!memberId){
-        profile = computeTeamAggregatedProfile(team);
-        title   = team.name || 'Team';
+        const profile = computeTeamAggregatedProfile(team);
+        html = buildPdfSheetTeam(profile, team.name || 'Team', teamColor);
       } else {
-        const m = findMemberById(memberId);
-        profile = ensureProfile(memberId);
-        title   = (m ? m.name : 'Mitglied') + ' (Team: ' + (team.name || 'Team') + ')';
+        const member = findMemberById(memberId);
+        const profile = ensureProfile(memberId);
+        const meta = profile.meta || {};
+        const roleKey = resolveRoleKey(member, profile);
+        const refLevel = meta.refLevel || '';
+        const showRef = meta.showRefDelta !== false;
+        const showPeer = meta.showPeerDelta !== false;
+
+        html = buildPdfSheetMember(memberId, member, team, profile, {
+          teamColor,
+          roleKey,
+          refLevel,
+          showRefDelta: showRef,
+          showPeerDelta: showPeer
+        });
       }
+
       root.innerHTML = `
         <style>
           body{background:white;color:#111;font-family:system-ui, sans-serif;}
@@ -1214,22 +1652,22 @@
           .pdf-table th,.pdf-table td{border:1px solid #ccc;padding:4px 6px;}
           .pdf-cat td{background:#f3f4f8;font-weight:bold;}
           .val-cell{text-align:center;width:40px;}
-          .bars-cell{width:180px;}
+          .bars-cell{width:200px;}
         </style>
-        ${buildPdfSheet(profile, title)}
+        ${html}
       `;
       window.print();
       setTimeout(()=>{ root.innerHTML=''; }, 500);
     }
 
     // ---------------------------
-    // Team-Dialog (inkl. Rollen-Profil)
+    // Team-Dialog
     // ---------------------------
-    function buildMemberRow(id, name, role){
+    function buildMemberRow(id, name, roleKeyOrLabel){
       const row = document.createElement('div');
       row.className = 'dialog-row';
       row.style.display='grid';
-      row.style.gridTemplateColumns='1.5fr 1.2fr 1.2fr auto';
+      row.style.gridTemplateColumns='1.5fr 1.2fr auto';
       row.style.gap='8px';
       row.dataset.memberId = id;
 
@@ -1238,9 +1676,27 @@
       nameInput.placeholder='Name';
       nameInput.value = name || '';
 
+      // ggf. Rolle aus Label rekonstruieren
+      const rolesObj = SETTINGS.roles || {};
+      if(roleKeyOrLabel){
+        const label = roleKeyOrLabel;
+        let hasKey = !!rolesObj[roleKeyOrLabel];
+        if(!hasKey){
+          for(const key of Object.keys(rolesObj)){
+            if(rolesObj[key].label === label){
+              roleKeyOrLabel = key;
+              hasKey = true;
+              break;
+            }
+          }
+        }
+        if(!hasKey){
+          roleKeyOrLabel = ensureRoleExistsForLabel(label);
+        }
+      }
+
       const roleSelect = document.createElement('select');
       roleSelect.className='search';
-
       const roles = getAllRoles();
       roleSelect.innerHTML = '';
       const optEmpty = document.createElement('option');
@@ -1254,21 +1710,24 @@
         roleSelect.appendChild(opt);
       });
 
-      if(role && roles.some(r=>r.key===role)){
-        roleSelect.value = role;
+      let selectedKey = '';
+      if(roleKeyOrLabel){
+        if(rolesObj[roleKeyOrLabel]){
+          selectedKey = roleKeyOrLabel;
+        } else {
+          for(const r of roles){
+            if(r.label === roleKeyOrLabel){ selectedKey = r.key; break; }
+          }
+        }
       }
-
-      const roleText = document.createElement('input');
-      roleText.className='search';
-      roleText.placeholder='Freitext-Rolle';
-      roleText.value = role && !roles.some(r=>r.key===role) ? role : '';
+      roleSelect.value = selectedKey;
 
       const del = document.createElement('button');
       del.textContent='✕';
       del.title='Mitglied entfernen';
       del.onclick = ()=> row.remove();
 
-      row.append(nameInput, roleSelect, roleText, del);
+      row.append(nameInput, roleSelect, del);
       return row;
     }
 
@@ -1298,66 +1757,6 @@
       byId('dlg-team').showModal();
     }
 
-    async function loadRoleTemplate(roleKey){
-      const fileName = roleKey + '.json';
-      try{
-        const resp = await fetch(fileName, { cache:'no-store' });
-        if(!resp.ok) return null;
-        const json = await resp.json();
-        return json;
-      }catch(e){
-        console.warn('Rollen-Template konnte nicht geladen werden:', roleKey, e);
-        return null;
-      }
-    }
-
-    async function applyRoleTemplateToMember(memberId, roleKey){
-      if(!roleKey) return;
-      const tmpl = await loadRoleTemplate(roleKey);
-      if(!tmpl || !Array.isArray(tmpl.categories)) return;
-      const prof = ensureProfile(memberId);
-      prof.categories = tmpl.categories.map(cat=>({
-        name: cat.name,
-        items: (cat.items||[]).map(it=>({ n: it.n, v: clamp5(it.v) }))
-      }));
-      prof.meta.updated = new Date().toISOString();
-    }
-
-    async function saveRoleTemplate(roleKey, tmpl){
-      try{
-        await fetch('/role/' + encodeURIComponent(roleKey), {
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body: JSON.stringify(tmpl)
-        });
-      }catch(e){
-        console.warn('Rollen-Template konnte nicht gespeichert werden:', roleKey, e);
-      }
-    }
-
-    function syncProfileWithRoleTemplateIfNeeded(memberId){
-      const m = findMemberById(memberId);
-      if(!m) return;
-      const prof = ensureProfile(memberId);
-      const roleKey = (prof.meta.role || m.role || '').trim();
-      if(!roleKey) return;
-      const label = (SETTINGS.roles && SETTINGS.roles[roleKey] && SETTINGS.roles[roleKey].label) || roleKey;
-
-      const tmpl = {
-        roleKey,
-        label,
-        categories: (prof.categories || []).map(cat => ({
-          name: cat.name,
-          items: (cat.items || []).map(it => ({
-            n: it.n,
-            v: clamp5(it.v)
-          }))
-        }))
-      };
-
-      saveRoleTemplate(roleKey, tmpl);
-    }
-
     async function saveTeamDialog(){
       const team = getActiveTeam();
       if(!team) return;
@@ -1375,28 +1774,31 @@
         const inputs = row.querySelectorAll('input.search, select.search');
         const nameInput = inputs[0];
         const roleSelect = inputs[1];
-        const roleText   = inputs[2];
         const name = (nameInput?.value || '').trim();
-        const roleKey = roleSelect.value || '';
-        const freeRole = (roleText?.value || '').trim();
         if(!name) return null;
-        const role = roleKey || freeRole;
-        return { id, name, roleKey, freeRole, role };
+        const rawRoleKey = roleSelect.value || '';
+        const roles = SETTINGS.roles || {};
+        let displayRole = '';
+        if(rawRoleKey){
+          displayRole = (roles[rawRoleKey] && roles[rawRoleKey].label) || rawRoleKey;
+        }
+        return { id, name, rawRoleKey, displayRole };
       }).filter(Boolean);
 
       for(const def of memberDefs){
         const existed = oldIds.includes(def.id);
-        if(def.roleKey && !existed){
-          await applyRoleTemplateToMember(def.id, def.roleKey);
+        if(def.rawRoleKey && !existed){
+          await applyRoleTemplateToMember(def.id, def.rawRoleKey);
         }
         const prof = ensureProfile(def.id);
         prof.meta.owner = def.name;
-        prof.meta.role  = def.role;
+        prof.meta.role  = def.rawRoleKey;
+        prof.meta.updated = new Date().toISOString();
       }
 
       team.name = nameInput.value.trim() || 'Team';
       team.color = colorInput.value || '#ffd166';
-      team.members = memberDefs.map(d=>({ id:d.id, name:d.name, role:d.role }));
+      team.members = memberDefs.map(d=>({ id:d.id, name:d.name, role:d.displayRole || '' }));
 
       const newIds = team.members.map(m=>m.id);
       const createdIds = newIds.filter(id => !oldIds.includes(id));
@@ -1540,8 +1942,7 @@
       const cat = prof.categories[activeCategoryIdx] || prof.categories[0];
       cat.items.push({n:name, v:val});
       prof.meta.updated = new Date().toISOString();
-      scheduleSave();
-      syncProfileWithRoleTemplateIfNeeded(memberId);
+      propagateRoleStructureFromMember(memberId);
       byId('dlg-add-skill').close();
       renderCategories();
     }
@@ -1559,8 +1960,7 @@
       prof.categories.push({name:name.trim(), items:[]});
       prof.meta.updated = new Date().toISOString();
       activeCategoryIdx = prof.categories.length-1;
-      scheduleSave();
-      syncProfileWithRoleTemplateIfNeeded(memberId);
+      propagateRoleStructureFromMember(memberId);
       renderCategories();
     }
 
@@ -1585,19 +1985,20 @@
     }
 
     // ---------------------------
-    // Rollen: aktuelle Profilstruktur als neue Rolle speichern
+    // Rollen erstellen (ohne Kategorien)
     // ---------------------------
-    function saveCurrentProfileAsRole(){
+    function createNewRoleFromCurrentProfile(){
       const memberId = SETTINGS.activeMemberId;
       if(!memberId){
         alert('Rollen können nur aus einem Profil (nicht in der Team-Ansicht) erzeugt werden.');
         return;
       }
       if(PEER_MODE.active){
-        alert('Im Peer-Review-Modus kann keine Rolle gespeichert werden.');
+        alert('Im Peer-Review-Modus kann keine Rolle erstellt werden.');
         return;
       }
       const prof = ensureProfile(memberId);
+      const m = findMemberById(memberId);
       const defaultKey = (prof.meta.role || '').replace(/\s+/g,'') || 'NeueRolle';
       const roleKeyInput = prompt('Kurzname der Rolle (Dateiname, z.B. UXLead):', defaultKey);
       if(!roleKeyInput) return;
@@ -1609,22 +2010,135 @@
       const labelInput = prompt('Anzeigename der Rolle (z.B. UX Lead):', prof.meta.role || safeKey) || safeKey;
 
       if(!SETTINGS.roles || typeof SETTINGS.roles!=='object') SETTINGS.roles = {};
-      SETTINGS.roles[safeKey] = { label: labelInput };
+      if(!SETTINGS.roles[safeKey]){
+        SETTINGS.roles[safeKey] = { label: labelInput, refs:{} };
+        REF_LEVELS.forEach(l=>{
+          SETTINGS.roles[safeKey].refs[l] = {};
+        });
+      } else {
+        SETTINGS.roles[safeKey].label = labelInput;
+      }
 
       const tmpl = {
         roleKey: safeKey,
         label: labelInput,
-        categories: (prof.categories || []).map(cat=>({
-          name: cat.name,
-          items: (cat.items || []).map(it=>({ n: it.n, v: clamp5(it.v) }))
-        }))
+        categories: []
       };
-
       saveRoleTemplate(safeKey, tmpl);
+
+      prof.meta.role = safeKey;
+      prof.meta.updated = new Date().toISOString();
+      if(m){
+        m.role = labelInput;
+      }
+
       scheduleSave();
       renderTeamTabs();
       renderMemberTabs();
-      alert(`Rolle „${labelInput}“ wurde gespeichert und steht nun im Rollen-Dropdown zur Verfügung.`);
+      updateHeader();
+      renderCategories();
+    }
+
+    // ---------------------------
+    // Referenz-Dialog
+    // ---------------------------
+    let REF_EDITOR_TEMPLATE = { roleKey:null, categories:[] };
+
+    async function openRefDialog(){
+      const roleSelect = byId('ref-role-select');
+      const levelSelect = byId('ref-level-select');
+      const searchInput = byId('ref-search');
+
+      const roles = getAllRoles();
+      roleSelect.innerHTML='';
+      roles.forEach(r=>{
+        const opt=document.createElement('option');
+        opt.value=r.key;
+        opt.textContent=r.label;
+        roleSelect.appendChild(opt);
+      });
+      if(!roles.length){
+        alert('Es sind noch keine Rollen definiert.');
+        return;
+      }
+
+      let defaultRoleKey = roles[0].key;
+      const memberId = SETTINGS.activeMemberId;
+      if(memberId){
+        const m = findMemberById(memberId);
+        const prof = ensureProfile(memberId);
+        const rk = resolveRoleKey(m, prof);
+        if(rk && SETTINGS.roles[rk]) defaultRoleKey = rk;
+      }
+
+      roleSelect.value = defaultRoleKey;
+      levelSelect.value = 'Senior';
+      searchInput.value = '';
+
+      REF_EDITOR_TEMPLATE = await loadRoleTemplate(defaultRoleKey);
+      renderRefEditorGrid();
+
+      byId('dlg-ref').showModal();
+    }
+
+    function renderRefEditorGrid(){
+      const roleSelect = byId('ref-role-select');
+      const levelSelect = byId('ref-level-select');
+      const searchInput = byId('ref-search');
+      const host = byId('ref-editor-grid');
+
+      const roleKey = roleSelect.value;
+      const level = levelSelect.value;
+      const filter = (searchInput.value || '').trim().toLowerCase();
+
+      if(!roleKey){
+        host.innerHTML='<div class="note">Keine Rolle ausgewählt.</div>';
+        return;
+      }
+
+      const cats = REF_EDITOR_TEMPLATE.categories || [];
+      if(!cats.length){
+        host.innerHTML='<div class="note">Diese Rolle hat noch keine Skills. Lege zuerst Kategorien &amp; Skills im Profil an.</div>';
+        return;
+      }
+
+      const refs = ensureRoleRefs(roleKey);
+      const mapLevel = refs[level];
+
+      const grid=document.createElement('div');
+      grid.style.display='grid';
+      grid.style.gridTemplateColumns='1.2fr 1fr auto';
+      grid.style.gap='8px 10px';
+
+      const h1=document.createElement('div'); h1.textContent='Kategorie';
+      const h2=document.createElement('div'); h2.textContent='Skill';
+      const h3=document.createElement('div'); h3.textContent='Ref (0–5)';
+      grid.append(h1,h2,h3);
+
+      cats.forEach(cat=>{
+        (cat.items||[]).forEach(it=>{
+          const catName = cat.name;
+          const skName  = it.n;
+          if(filter && !(catName.toLowerCase().includes(filter)||skName.toLowerCase().includes(filter))) return;
+          const catDiv=document.createElement('div'); catDiv.textContent=catName; catDiv.style.color='#cdd5ff';
+          const skDiv=document.createElement('div'); skDiv.textContent=skName;
+          const valDiv=document.createElement('div');
+          const key=skillKey(catName, skName);
+          const current = typeof mapLevel[key]==='number' ? clamp5(mapLevel[key]) : (REF_DEFAULTS[level]||0);
+          const inp=document.createElement('input');
+          inp.type='number'; inp.min='0'; inp.max='5'; inp.step='1'; inp.value=String(current); inp.className='search'; inp.style.width='80px';
+          inp.addEventListener('input', ()=>{
+            const v=clamp5(parseInt(inp.value,10)||0);
+            mapLevel[key]=v;
+            scheduleSave();
+          });
+          valDiv.append(inp);
+          grid.append(catDiv, skDiv, valDiv);
+        });
+      });
+
+      host.innerHTML='';
+      host.append(grid);
     }
 
     // ---------------------------
@@ -1771,7 +2285,64 @@
 
       byId('peer-pill').onclick = ()=> exitPeerMode();
 
-      byId('btn-role-save').onclick = ()=> saveCurrentProfileAsRole();
+      byId('btn-role-save').onclick = ()=> createNewRoleFromCurrentProfile();
+      byId('btn-ref-edit').onclick = ()=> openRefDialog();
+      byId('ref-role-select').addEventListener('change', async ()=>{
+        REF_EDITOR_TEMPLATE = await loadRoleTemplate(byId('ref-role-select').value);
+        renderRefEditorGrid();
+      });
+      byId('ref-level-select').addEventListener('change', ()=> renderRefEditorGrid());
+      byId('ref-search').addEventListener('input', ()=> renderRefEditorGrid());
+      byId('ref-fill-defaults').onclick = ()=>{
+        const roleKey = byId('ref-role-select').value;
+        const level   = byId('ref-level-select').value;
+        if(!roleKey || !level) return;
+        const cats = REF_EDITOR_TEMPLATE.categories || [];
+        const refs = ensureRoleRefs(roleKey);
+        const map = refs[level];
+        const base = REF_DEFAULTS[level] || 0;
+        cats.forEach(cat=>{
+          (cat.items||[]).forEach(it=>{
+            map[skillKey(cat.name, it.n)] = base;
+          });
+        });
+        scheduleSave();
+        renderRefEditorGrid();
+      };
+      byId('ref-cancel').onclick = ()=> byId('dlg-ref').close();
+      byId('ref-save').onclick = ()=> byId('dlg-ref').close();
+
+      const refSelect = byId('ref-view-level');
+      const refToggle = byId('toggle-ref-delta');
+      const peerToggle = byId('toggle-peer-delta');
+
+      refSelect.onchange = ()=>{
+        const memberId = SETTINGS.activeMemberId;
+        if(!memberId) return;
+        const prof = ensureProfile(memberId);
+        prof.meta.refLevel = refSelect.value || '';
+        prof.meta.updated = new Date().toISOString();
+        scheduleSave();
+        renderCategories();
+      };
+      refToggle.onchange = ()=>{
+        const memberId = SETTINGS.activeMemberId;
+        if(!memberId) return;
+        const prof = ensureProfile(memberId);
+        prof.meta.showRefDelta = !!refToggle.checked;
+        prof.meta.updated = new Date().toISOString();
+        scheduleSave();
+        renderCategories();
+      };
+      peerToggle.onchange = ()=>{
+        const memberId = SETTINGS.activeMemberId;
+        if(!memberId) return;
+        const prof = ensureProfile(memberId);
+        prof.meta.showPeerDelta = !!peerToggle.checked;
+        prof.meta.updated = new Date().toISOString();
+        scheduleSave();
+        renderCategories();
+      };
 
       document.addEventListener('keydown', (e)=>{
         if(e.shiftKey && (e.key==='ArrowLeft' || e.key==='ArrowRight')){
