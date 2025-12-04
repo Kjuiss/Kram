@@ -1,0 +1,72 @@
+{
+  "id": "UX-APPs",
+  "label": "UX-APPs",
+  "categories": [
+    {
+      "name": "User Research & Experience Strategy",
+      "items": [
+        { "n": "User Research Methods (Interviews, Surveys, Field Studies)", "v": 0 },
+        { "n": "Digitale Nutzungsszenarien", "v": 0 },
+        { "n": "Kontextanalyse (Küche, Umgebung, Nutzungssicherheit)", "v": 0 },
+        { "n": "Accessibility & Inclusive Design", "v": 0 }
+      ]
+    },
+    {
+      "name": "Interaction Design & Information Architecture",
+      "items": [
+        { "n": "Interaction Design Principles (Navigation, Feedback, Affordance)", "v": 0 },
+        { "n": "Animationen & Screen Transitions", "v": 0 },
+        { "n": "Feedback-Design (Licht, Sound, Haptik)", "v": 0 },
+        { "n": "Information Architecture & Content Structuring", "v": 0 },
+        { "n": "User Flows & Task Analysis", "v": 0 },
+        { "n": "Wireframing & Rapid Prototyping", "v": 0 },
+        { "n": "Motion Design & Micro-Interactions", "v": 0 },
+        { "n": "Gesture & Touch Interaction Patterns", "v": 0 }
+      ]
+    },
+    {
+      "name": "Visual & Interface Design",
+      "items": [
+        { "n": "Design Systems & Component Libraries", "v": 0 },
+        { "n": "UX-Writing", "v": 0 },
+        { "n": "Branding-Konsistenz", "v": 0 },
+        { "n": "Physical UI Consistency", "v": 0 },
+        { "n": "Visual Hierarchy & Layout Principles", "v": 0 },
+        { "n": "Typography & Iconography", "v": 0 },
+        { "n": "UI Design Tools (Figma, Rive)", "v": 0 },
+        { "n": "Design Tokens & Handoff for Dev", "v": 0 },
+        { "n": "Branding & Visual Consistency across multiple Touchpoints (App & HMI)", "v": 0 }
+      ]
+    },
+    {
+      "name": "Platform & Device Experience",
+      "items": [
+        { "n": "Human Interface Guidelines", "v": 0 },
+        { "n": "Accessibility in Embedded UI-Frameworks (Qt, Flutter, custom HMI toolchains)", "v": 0 },
+        { "n": "HMI-Specific UX (embedded UI, physical control integration)", "v": 0 },
+        { "n": "Responsive & Adaptive Design", "v": 0 },
+        { "n": "Context-Aware UX (proximity, sensors, environment)", "v": 0 }
+      ]
+    },
+    {
+      "name": "Prototyping, Testing & Tooling",
+      "items": [
+        { "n": "Interactive Prototyping (Figma, ProtoPie)", "v": 0 },
+        { "n": "Hardware-Prototyping (Microcontroller Mockups, Simulations, Touch Panels)", "v": 0 },
+        { "n": "Usability Testing & Heuristic Evaluation", "v": 0 },
+        { "n": "A/B Testing & Data-Driven Design", "v": 0 },
+        { "n": "Iteration & Continuous Improvement", "v": 0 },
+        { "n": "Analytics Interpretation", "v": 0 }
+      ]
+    },
+    {
+      "name": "Collaboration, Process & Soft Skills",
+      "items": [
+        { "n": "Cross-Functional Collaboration (Dev, PO, Marketing)", "v": 0 },
+        { "n": "Documentation & Specification (DevOps)", "v": 0 },
+        { "n": "Stakeholder Communication & Workshops", "v": 0 },
+        { "n": "Mentorship & Knowledge Sharing", "v": 0 }
+      ]
+    }
+  ]
+}
