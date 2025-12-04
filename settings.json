@@ -1,68 +1,230 @@
 {
-  "schemaVersion": 22,
+  "schemaVersion": 23,
   "teams": [
     {
-      "id": "team_hfalmg0",
-      "name": "POs",
-      "color": "#006627",
+      "id": "team_fo5mrxv",
+      "name": "UX-HMI",
+      "color": "#ffd166",
       "members": [
         {
-          "id": "member_5ryhlxu",
-          "name": "Test PO1",
-          "role": "POs"
+          "id": "member_51qjct8",
+          "name": "Test1",
+          "role": "UX-HMIs"
         },
         {
-          "id": "member_roi2qjh",
-          "name": "Test PO2",
-          "role": "POs"
+          "id": "member_xv3efnk",
+          "name": "Test2",
+          "role": "UX-HMIs"
         }
       ],
       "filterMemberIds": null,
-      "activeMemberId": "member_roi2qjh"
+      "activeMemberId": "member_51qjct8"
     },
     {
-      "id": "team_zesc1ow",
+      "id": "team_szzwc6g",
       "name": "PjMs",
       "color": "#ff6666",
       "members": [
         {
-          "id": "member_isuzh6l",
-          "name": "PjMler 1",
+          "id": "member_uayep8q",
+          "name": "Test1",
           "role": "PjMs"
         },
         {
-          "id": "member_nhuieex",
-          "name": "PjMler 2",
+          "id": "member_lfyyakj",
+          "name": "Test2",
           "role": "PjMs"
+        },
+        {
+          "id": "member_ddywx6h",
+          "name": "Test3",
+          "role": "UX-HMIs"
         }
       ],
       "filterMemberIds": null,
-      "activeMemberId": "member_isuzh6l"
+      "activeMemberId": "member_uayep8q"
     },
     {
-      "id": "team_5gsc4uz",
-      "name": "UX-HMI",
-      "color": "#00c29b",
+      "id": "team_5e5hi4n",
+      "name": "POs",
+      "color": "#667fff",
       "members": [
         {
-          "id": "member_f7vlbdn",
-          "name": "UX-HMI 1",
-          "role": "UX-HMI"
+          "id": "member_divzx2z",
+          "name": "Test1",
+          "role": "POs"
+        },
+        {
+          "id": "member_bsrxomh",
+          "name": "Test2",
+          "role": "POs"
+        },
+        {
+          "id": "member_qwbmc1r",
+          "name": "Test3",
+          "role": "POs"
         }
       ],
       "filterMemberIds": null,
-      "activeMemberId": "member_f7vlbdn"
+      "activeMemberId": "member_bsrxomh"
     }
   ],
-  "activeTeamId": "team_5gsc4uz",
-  "activeMemberId": "member_f7vlbdn",
+  "activeTeamId": "team_fo5mrxv",
+  "activeMemberId": "member_51qjct8",
   "data": {
-    "member_5ryhlxu": {
+    "member_divzx2z": {
       "meta": {
-        "owner": "Test PO1",
+        "owner": "Test1",
         "role": "POs",
         "subtitle": "",
-        "updated": "2025-12-03T23:42:58.533Z"
+        "updated": "2025-12-04T01:18:36.604Z",
+        "refLevel": "",
+        "showRefDelta": true,
+        "showPeerDelta": true
+      },
+      "categories": [
+        {
+          "name": "Agile:",
+          "items": [
+            {
+              "n": "Agile Prinzipien anwenden",
+              "v": 0
+            },
+            {
+              "n": "Agile Tools nutzen",
+              "v": 0
+            },
+            {
+              "n": "Backlock Management",
+              "v": 0
+            },
+            {
+              "n": "Scaling Agile",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Methodenkompetenz:",
+          "items": [
+            {
+              "n": "Priorisierungsmethoden",
+              "v": 0
+            },
+            {
+              "n": "Scrum",
+              "v": 0
+            },
+            {
+              "n": "Kanban",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Produktmanagement:",
+          "items": [
+            {
+              "n": "Produktlebenszyklus Management",
+              "v": 0
+            },
+            {
+              "n": "Business Case Development",
+              "v": 0
+            },
+            {
+              "n": "Machbarkeitsanalyse",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Projektmanagement:",
+          "items": [
+            {
+              "n": "Projektplanung",
+              "v": 0
+            },
+            {
+              "n": "Projektsteuerung",
+              "v": 0
+            },
+            {
+              "n": "Ergebnissicherung",
+              "v": 0
+            },
+            {
+              "n": "Risikomanagement",
+              "v": 0
+            },
+            {
+              "n": "Projekt Controlling",
+              "v": 0
+            },
+            {
+              "n": "Stakeholder Analyse",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Reporting:",
+          "items": [
+            {
+              "n": "Kennzahlenanalyse",
+              "v": 0
+            },
+            {
+              "n": "Monitoring",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Requirements Management:",
+          "items": [
+            {
+              "n": "Schnittstellenmanagement",
+              "v": 0
+            },
+            {
+              "n": "Anforderungserhebung",
+              "v": 0
+            },
+            {
+              "n": "Anforderungsanalyse",
+              "v": 0
+            },
+            {
+              "n": "Anforderungsdokumentation",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "User Research:",
+          "items": [
+            {
+              "n": "Analyse der Benutzerbedürfnisse",
+              "v": 0
+            },
+            {
+              "n": "Usability Testing",
+              "v": 0
+            }
+          ]
+        }
+      ]
+    },
+    "member_bsrxomh": {
+      "meta": {
+        "owner": "Test2",
+        "role": "POs",
+        "subtitle": "",
+        "updated": "2025-12-04T01:24:02.177Z",
+        "refLevel": "Senior",
+        "showRefDelta": false,
+        "showPeerDelta": false
       },
       "categories": [
         {
@@ -78,11 +240,11 @@
             },
             {
               "n": "Backlock Management",
-              "v": 0
+              "v": 2
             },
             {
               "n": "Scaling Agile",
-              "v": 0
+              "v": 1
             }
           ]
         },
@@ -91,15 +253,15 @@
           "items": [
             {
               "n": "Priorisierungsmethoden",
-              "v": 0
+              "v": 5
             },
             {
               "n": "Scrum",
-              "v": 0
+              "v": 4
             },
             {
               "n": "Kanban",
-              "v": 0
+              "v": 4
             }
           ]
         },
@@ -108,7 +270,7 @@
           "items": [
             {
               "n": "Produktlebenszyklus Management",
-              "v": 0
+              "v": 4
             },
             {
               "n": "Business Case Development",
@@ -198,12 +360,15 @@
         }
       ]
     },
-    "member_roi2qjh": {
+    "member_qwbmc1r": {
       "meta": {
-        "owner": "Test PO2",
+        "owner": "Test3",
         "role": "POs",
         "subtitle": "",
-        "updated": "2025-12-03T23:43:59.745Z"
+        "updated": "2025-12-04T01:23:32.862Z",
+        "refLevel": "",
+        "showRefDelta": true,
+        "showPeerDelta": true
       },
       "categories": [
         {
@@ -211,7 +376,7 @@
           "items": [
             {
               "n": "Agile Prinzipien anwenden",
-              "v": 3
+              "v": 1
             },
             {
               "n": "Agile Tools nutzen",
@@ -219,11 +384,11 @@
             },
             {
               "n": "Backlock Management",
-              "v": 4
+              "v": 2
             },
             {
               "n": "Scaling Agile",
-              "v": 0
+              "v": 2
             }
           ]
         },
@@ -232,15 +397,15 @@
           "items": [
             {
               "n": "Priorisierungsmethoden",
-              "v": 0
+              "v": 3
             },
             {
               "n": "Scrum",
-              "v": 0
+              "v": 3
             },
             {
               "n": "Kanban",
-              "v": 0
+              "v": 3
             }
           ]
         },
@@ -249,15 +414,15 @@
           "items": [
             {
               "n": "Produktlebenszyklus Management",
-              "v": 0
+              "v": 3
             },
             {
               "n": "Business Case Development",
-              "v": 0
+              "v": 2
             },
             {
               "n": "Machbarkeitsanalyse",
-              "v": 0
+              "v": 2
             }
           ]
         },
@@ -266,27 +431,27 @@
           "items": [
             {
               "n": "Projektplanung",
-              "v": 0
+              "v": 2
             },
             {
               "n": "Projektsteuerung",
-              "v": 0
+              "v": 2
             },
             {
               "n": "Ergebnissicherung",
-              "v": 0
+              "v": 2
             },
             {
               "n": "Risikomanagement",
-              "v": 0
+              "v": 2
             },
             {
               "n": "Projekt Controlling",
-              "v": 0
+              "v": 2
             },
             {
               "n": "Stakeholder Analyse",
-              "v": 0
+              "v": 1
             }
           ]
         },
@@ -295,11 +460,11 @@
           "items": [
             {
               "n": "Kennzahlenanalyse",
-              "v": 0
+              "v": 1
             },
             {
               "n": "Monitoring",
-              "v": 0
+              "v": 1
             }
           ]
         },
@@ -308,19 +473,19 @@
           "items": [
             {
               "n": "Schnittstellenmanagement",
-              "v": 0
+              "v": 2
             },
             {
               "n": "Anforderungserhebung",
-              "v": 0
+              "v": 2
             },
             {
               "n": "Anforderungsanalyse",
-              "v": 0
+              "v": 2
             },
             {
               "n": "Anforderungsdokumentation",
-              "v": 0
+              "v": 2
             }
           ]
         },
@@ -329,22 +494,25 @@
           "items": [
             {
               "n": "Analyse der Benutzerbedürfnisse",
-              "v": 0
+              "v": 2
             },
             {
               "n": "Usability Testing",
-              "v": 0
+              "v": 3
             }
           ]
         }
       ]
     },
-    "member_isuzh6l": {
+    "member_uayep8q": {
       "meta": {
-        "owner": "PjMler 1",
+        "owner": "Test1",
         "role": "PjMs",
         "subtitle": "",
-        "updated": "2025-12-03T23:45:03.889Z"
+        "updated": "2025-12-04T01:15:44.739Z",
+        "refLevel": "",
+        "showRefDelta": true,
+        "showPeerDelta": true
       },
       "categories": [
         {
@@ -501,12 +669,15 @@
         }
       ]
     },
-    "member_nhuieex": {
+    "member_lfyyakj": {
       "meta": {
-        "owner": "PjMler 2",
+        "owner": "Test2",
         "role": "PjMs",
         "subtitle": "",
-        "updated": "2025-12-03T23:45:35.483Z"
+        "updated": "2025-12-04T01:21:43.189Z",
+        "refLevel": "",
+        "showRefDelta": true,
+        "showPeerDelta": true
       },
       "categories": [
         {
@@ -514,19 +685,19 @@
           "items": [
             {
               "n": "Agile Prinzipien verwenden",
-              "v": 2
-            },
-            {
-              "n": "Agile Tools nutzen",
-              "v": 2
-            },
-            {
-              "n": "Backlog Management durchführen",
               "v": 3
             },
             {
+              "n": "Agile Tools nutzen",
+              "v": 3
+            },
+            {
+              "n": "Backlog Management durchführen",
+              "v": 1
+            },
+            {
               "n": "Scaling Agile",
-              "v": 0
+              "v": 1
             }
           ]
         },
@@ -544,7 +715,7 @@
           "items": [
             {
               "n": "PPP",
-              "v": 0
+              "v": 2
             }
           ]
         },
@@ -553,35 +724,35 @@
           "items": [
             {
               "n": "Projektplanung",
-              "v": 0
+              "v": 1
             },
             {
               "n": "Projektsteuerung",
-              "v": 0
+              "v": 2
             },
             {
               "n": "Ergebnissicherung",
-              "v": 0
+              "v": 3
             },
             {
               "n": "Projekt Controlling",
-              "v": 0
+              "v": 2
             },
             {
               "n": "Programmmanagement",
-              "v": 0
+              "v": 3
             },
             {
               "n": "Portfolio Management",
-              "v": 0
+              "v": 3
             },
             {
               "n": "SMARTe Zielformulierung",
-              "v": 0
+              "v": 4
             },
             {
               "n": "Machbarkeitsanalyse",
-              "v": 0
+              "v": 4
             }
           ]
         },
@@ -590,7 +761,7 @@
           "items": [
             {
               "n": "Berichtserstellung",
-              "v": 0
+              "v": 3
             }
           ]
         },
@@ -599,15 +770,15 @@
           "items": [
             {
               "n": "Risikoerkennung",
-              "v": 0
+              "v": 3
             },
             {
               "n": "Risikokommunikation",
-              "v": 0
+              "v": 3
             },
             {
               "n": "Risikokontrollstrategien",
-              "v": 0
+              "v": 3
             }
           ]
         },
@@ -616,23 +787,23 @@
           "items": [
             {
               "n": "Stakeholder Analyse",
-              "v": 0
+              "v": 3
             },
             {
               "n": "Engagementplanung",
-              "v": 0
+              "v": 3
             },
             {
               "n": "Feedback-Mechanismen",
-              "v": 0
+              "v": 2
             },
             {
               "n": "Interessen- und Einflusskartierung",
-              "v": 0
+              "v": 2
             },
             {
               "n": "Stakeholder-Identifikation",
-              "v": 0
+              "v": 2
             }
           ]
         },
@@ -641,204 +812,174 @@
           "items": [
             {
               "n": "Sicherstellung von Ergebnissen",
-              "v": 0
+              "v": 2
             },
             {
               "n": "Teamdynamik managen",
-              "v": 0
+              "v": 2
             },
             {
               "n": "Mitarbeitermotivation",
-              "v": 0
+              "v": 2
             },
             {
               "n": "Schnittstellenmanagement",
-              "v": 0
+              "v": 1
             },
             {
               "n": "Teamführung",
-              "v": 0
+              "v": 2
             }
           ]
         }
       ]
     },
-    "member_f7vlbdn": {
+    "member_ddywx6h": {
       "meta": {
-        "owner": "UX-HMI 1",
-        "role": "UX-HMI",
+        "owner": "Test3",
+        "role": "UX-HMIs",
         "subtitle": "",
-        "updated": "2025-12-03T23:57:52.731Z"
+        "updated": "2025-12-04T01:20:56.217Z",
+        "refLevel": "",
+        "showRefDelta": true,
+        "showPeerDelta": true
       },
       "categories": [
         {
-          "name": "Agiles Projektmanagement:",
+          "name": "2D",
           "items": [
             {
-              "n": "Backlog Management durchführen",
-              "v": 5
+              "n": "Figma",
+              "v": 2
             },
             {
-              "n": "Scaling Agile",
-              "v": 0
+              "n": "Photoshop",
+              "v": 2
             }
           ]
         },
         {
-          "name": "Kostenmanagement:",
+          "name": "3D",
           "items": [
             {
-              "n": "Projektkostenmanagement",
-              "v": 0
+              "n": "Unreal",
+              "v": 2
+            },
+            {
+              "n": "Unity",
+              "v": 2
+            }
+          ]
+        }
+      ]
+    },
+    "member_51qjct8": {
+      "meta": {
+        "owner": "Test1",
+        "role": "UX-HMIs",
+        "subtitle": "",
+        "updated": "2025-12-04T01:17:24.062Z",
+        "refLevel": "",
+        "showRefDelta": true,
+        "showPeerDelta": true
+      },
+      "categories": [
+        {
+          "name": "2D",
+          "items": [
+            {
+              "n": "Figma",
+              "v": 1
+            },
+            {
+              "n": "Photoshop",
+              "v": 2
             }
           ]
         },
         {
-          "name": "Project- & Ressourcenmanagement:",
+          "name": "3D",
           "items": [
             {
-              "n": "PPP",
-              "v": 0
+              "n": "Unreal",
+              "v": 2
+            },
+            {
+              "n": "Unity",
+              "v": 3
+            }
+          ]
+        }
+      ]
+    },
+    "member_xv3efnk": {
+      "meta": {
+        "owner": "Test2",
+        "role": "UX-HMIs",
+        "subtitle": "",
+        "updated": "2025-12-04T01:24:55.332Z",
+        "refLevel": "",
+        "showRefDelta": true,
+        "showPeerDelta": true
+      },
+      "categories": [
+        {
+          "name": "2D",
+          "items": [
+            {
+              "n": "Figma",
+              "v": 2
+            },
+            {
+              "n": "Photoshop",
+              "v": 1
             }
           ]
         },
         {
-          "name": "Projektmanagement:",
+          "name": "3D",
           "items": [
             {
-              "n": "Projektplanung",
-              "v": 0
+              "n": "Unreal",
+              "v": 1
             },
             {
-              "n": "Projektsteuerung",
-              "v": 0
-            },
-            {
-              "n": "Ergebnissicherung",
-              "v": 0
-            },
-            {
-              "n": "Projekt Controlling",
-              "v": 0
-            },
-            {
-              "n": "Programmmanagement",
-              "v": 0
-            },
-            {
-              "n": "Portfolio Management",
-              "v": 0
-            },
-            {
-              "n": "SMARTe Zielformulierung",
-              "v": 0
-            },
-            {
-              "n": "Machbarkeitsanalyse",
-              "v": 0
-            }
-          ]
-        },
-        {
-          "name": "Reporting:",
-          "items": [
-            {
-              "n": "Berichtserstellung",
-              "v": 0
-            }
-          ]
-        },
-        {
-          "name": "Risikomanagement:",
-          "items": [
-            {
-              "n": "Risikoerkennung",
-              "v": 0
-            },
-            {
-              "n": "Risikokommunikation",
-              "v": 0
-            },
-            {
-              "n": "Risikokontrollstrategien",
-              "v": 0
-            }
-          ]
-        },
-        {
-          "name": "Stakeholder-Management:",
-          "items": [
-            {
-              "n": "Stakeholder Analyse",
-              "v": 0
-            },
-            {
-              "n": "Engagementplanung",
-              "v": 0
-            },
-            {
-              "n": "Feedback-Mechanismen",
-              "v": 0
-            },
-            {
-              "n": "Interessen- und Einflusskartierung",
-              "v": 0
-            },
-            {
-              "n": "Stakeholder-Identifikation",
-              "v": 0
-            }
-          ]
-        },
-        {
-          "name": "Teammanagement:",
-          "items": [
-            {
-              "n": "Sicherstellung von Ergebnissen",
-              "v": 0
-            },
-            {
-              "n": "Teamdynamik managen",
-              "v": 0
-            },
-            {
-              "n": "Mitarbeitermotivation",
-              "v": 0
-            },
-            {
-              "n": "Schnittstellenmanagement",
-              "v": 0
-            },
-            {
-              "n": "Teamführung",
-              "v": 0
+              "n": "Unity",
+              "v": 1
             }
           ]
         }
       ]
     }
   },
-  "peer": {
-    "member_isuzh6l": {
-      "member_nhuieex": {
-        "Agiles Projektmanagement:::Agile Tools nutzen": 5,
-        "Agiles Projektmanagement:::Agile Prinzipien verwenden": 5,
-        "Kostenmanagement:::Projektkostenmanagement": 1,
-        "Project- & Ressourcenmanagement:::PPP": 3,
-        "Projektmanagement:::Projektplanung": 1,
-        "Projektmanagement:::Projektsteuerung": 3
-      }
-    }
-  },
+  "peer": {},
   "roles": {
     "POs": {
-      "label": "POs"
+      "label": "POs",
+      "refs": {
+        "Junior": {},
+        "Professional": {},
+        "Senior": {},
+        "Lead": {}
+      }
     },
     "PjMs": {
-      "label": "PjMs"
+      "label": "PjMs",
+      "refs": {
+        "Junior": {},
+        "Professional": {},
+        "Senior": {},
+        "Lead": {}
+      }
     },
-    "UX-HMI": {
-      "label": "UX-HMI"
+    "UX-HMIs": {
+      "label": "UX-HMIs",
+      "refs": {
+        "Junior": {},
+        "Professional": {},
+        "Senior": {},
+        "Lead": {}
+      }
     }
   }
 }
