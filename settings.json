@@ -1,43 +1,68 @@
 {
-  "schemaVersion": 21,
+  "schemaVersion": 22,
   "teams": [
     {
-      "id": "team_vvehg4w",
-      "name": "Neues Team",
-      "color": "#ffd166",
-      "members": [],
-      "filterMemberIds": null,
-      "activeMemberId": null
-    },
-    {
-      "id": "team_kcg16kt",
-      "name": "Neues Team",
-      "color": "#ffd166",
+      "id": "team_hfalmg0",
+      "name": "POs",
+      "color": "#006627",
       "members": [
         {
-          "id": "member_nt1oqod",
-          "name": "sfsdf",
+          "id": "member_5ryhlxu",
+          "name": "Test PO1",
           "role": "POs"
         },
         {
-          "id": "member_zgqnfdn",
-          "name": "cfff",
+          "id": "member_roi2qjh",
+          "name": "Test PO2",
           "role": "POs"
         }
       ],
       "filterMemberIds": null,
-      "activeMemberId": "member_zgqnfdn"
+      "activeMemberId": "member_roi2qjh"
+    },
+    {
+      "id": "team_zesc1ow",
+      "name": "PjMs",
+      "color": "#ff6666",
+      "members": [
+        {
+          "id": "member_isuzh6l",
+          "name": "PjMler 1",
+          "role": "PjMs"
+        },
+        {
+          "id": "member_nhuieex",
+          "name": "PjMler 2",
+          "role": "PjMs"
+        }
+      ],
+      "filterMemberIds": null,
+      "activeMemberId": "member_isuzh6l"
+    },
+    {
+      "id": "team_5gsc4uz",
+      "name": "UX-HMI",
+      "color": "#00c29b",
+      "members": [
+        {
+          "id": "member_f7vlbdn",
+          "name": "UX-HMI 1",
+          "role": "UX-HMI"
+        }
+      ],
+      "filterMemberIds": null,
+      "activeMemberId": "member_f7vlbdn"
     }
   ],
-  "activeTeamId": "team_kcg16kt",
-  "activeMemberId": "member_zgqnfdn",
+  "activeTeamId": "team_5gsc4uz",
+  "activeMemberId": "member_f7vlbdn",
   "data": {
-    "member_nt1oqod": {
+    "member_5ryhlxu": {
       "meta": {
-        "owner": "sfsdf",
+        "owner": "Test PO1",
         "role": "POs",
         "subtitle": "",
-        "updated": "2025-12-03T23:26:19.182Z"
+        "updated": "2025-12-03T23:42:58.533Z"
       },
       "categories": [
         {
@@ -45,7 +70,7 @@
           "items": [
             {
               "n": "Agile Prinzipien anwenden",
-              "v": 2
+              "v": 1
             },
             {
               "n": "Agile Tools nutzen",
@@ -173,12 +198,12 @@
         }
       ]
     },
-    "member_zgqnfdn": {
+    "member_roi2qjh": {
       "meta": {
-        "owner": "cfff",
+        "owner": "Test PO2",
         "role": "POs",
         "subtitle": "",
-        "updated": "2025-12-03T23:29:11.445Z"
+        "updated": "2025-12-03T23:43:59.745Z"
       },
       "categories": [
         {
@@ -186,15 +211,15 @@
           "items": [
             {
               "n": "Agile Prinzipien anwenden",
-              "v": 0
+              "v": 3
             },
             {
               "n": "Agile Tools nutzen",
-              "v": 0
+              "v": 2
             },
             {
               "n": "Backlock Management",
-              "v": 0
+              "v": 4
             },
             {
               "n": "Scaling Agile",
@@ -308,6 +333,484 @@
             },
             {
               "n": "Usability Testing",
+              "v": 0
+            }
+          ]
+        }
+      ]
+    },
+    "member_isuzh6l": {
+      "meta": {
+        "owner": "PjMler 1",
+        "role": "PjMs",
+        "subtitle": "",
+        "updated": "2025-12-03T23:45:03.889Z"
+      },
+      "categories": [
+        {
+          "name": "Agiles Projektmanagement:",
+          "items": [
+            {
+              "n": "Agile Prinzipien verwenden",
+              "v": 0
+            },
+            {
+              "n": "Agile Tools nutzen",
+              "v": 0
+            },
+            {
+              "n": "Backlog Management durchführen",
+              "v": 0
+            },
+            {
+              "n": "Scaling Agile",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Kostenmanagement:",
+          "items": [
+            {
+              "n": "Projektkostenmanagement",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Project- & Ressourcenmanagement:",
+          "items": [
+            {
+              "n": "PPP",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Projektmanagement:",
+          "items": [
+            {
+              "n": "Projektplanung",
+              "v": 0
+            },
+            {
+              "n": "Projektsteuerung",
+              "v": 0
+            },
+            {
+              "n": "Ergebnissicherung",
+              "v": 0
+            },
+            {
+              "n": "Projekt Controlling",
+              "v": 0
+            },
+            {
+              "n": "Programmmanagement",
+              "v": 0
+            },
+            {
+              "n": "Portfolio Management",
+              "v": 0
+            },
+            {
+              "n": "SMARTe Zielformulierung",
+              "v": 0
+            },
+            {
+              "n": "Machbarkeitsanalyse",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Reporting:",
+          "items": [
+            {
+              "n": "Berichtserstellung",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Risikomanagement:",
+          "items": [
+            {
+              "n": "Risikoerkennung",
+              "v": 0
+            },
+            {
+              "n": "Risikokommunikation",
+              "v": 0
+            },
+            {
+              "n": "Risikokontrollstrategien",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Stakeholder-Management:",
+          "items": [
+            {
+              "n": "Stakeholder Analyse",
+              "v": 0
+            },
+            {
+              "n": "Engagementplanung",
+              "v": 0
+            },
+            {
+              "n": "Feedback-Mechanismen",
+              "v": 0
+            },
+            {
+              "n": "Interessen- und Einflusskartierung",
+              "v": 0
+            },
+            {
+              "n": "Stakeholder-Identifikation",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Teammanagement:",
+          "items": [
+            {
+              "n": "Sicherstellung von Ergebnissen",
+              "v": 0
+            },
+            {
+              "n": "Teamdynamik managen",
+              "v": 0
+            },
+            {
+              "n": "Mitarbeitermotivation",
+              "v": 0
+            },
+            {
+              "n": "Schnittstellenmanagement",
+              "v": 0
+            },
+            {
+              "n": "Teamführung",
+              "v": 0
+            }
+          ]
+        }
+      ]
+    },
+    "member_nhuieex": {
+      "meta": {
+        "owner": "PjMler 2",
+        "role": "PjMs",
+        "subtitle": "",
+        "updated": "2025-12-03T23:45:35.483Z"
+      },
+      "categories": [
+        {
+          "name": "Agiles Projektmanagement:",
+          "items": [
+            {
+              "n": "Agile Prinzipien verwenden",
+              "v": 2
+            },
+            {
+              "n": "Agile Tools nutzen",
+              "v": 2
+            },
+            {
+              "n": "Backlog Management durchführen",
+              "v": 3
+            },
+            {
+              "n": "Scaling Agile",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Kostenmanagement:",
+          "items": [
+            {
+              "n": "Projektkostenmanagement",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Project- & Ressourcenmanagement:",
+          "items": [
+            {
+              "n": "PPP",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Projektmanagement:",
+          "items": [
+            {
+              "n": "Projektplanung",
+              "v": 0
+            },
+            {
+              "n": "Projektsteuerung",
+              "v": 0
+            },
+            {
+              "n": "Ergebnissicherung",
+              "v": 0
+            },
+            {
+              "n": "Projekt Controlling",
+              "v": 0
+            },
+            {
+              "n": "Programmmanagement",
+              "v": 0
+            },
+            {
+              "n": "Portfolio Management",
+              "v": 0
+            },
+            {
+              "n": "SMARTe Zielformulierung",
+              "v": 0
+            },
+            {
+              "n": "Machbarkeitsanalyse",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Reporting:",
+          "items": [
+            {
+              "n": "Berichtserstellung",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Risikomanagement:",
+          "items": [
+            {
+              "n": "Risikoerkennung",
+              "v": 0
+            },
+            {
+              "n": "Risikokommunikation",
+              "v": 0
+            },
+            {
+              "n": "Risikokontrollstrategien",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Stakeholder-Management:",
+          "items": [
+            {
+              "n": "Stakeholder Analyse",
+              "v": 0
+            },
+            {
+              "n": "Engagementplanung",
+              "v": 0
+            },
+            {
+              "n": "Feedback-Mechanismen",
+              "v": 0
+            },
+            {
+              "n": "Interessen- und Einflusskartierung",
+              "v": 0
+            },
+            {
+              "n": "Stakeholder-Identifikation",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Teammanagement:",
+          "items": [
+            {
+              "n": "Sicherstellung von Ergebnissen",
+              "v": 0
+            },
+            {
+              "n": "Teamdynamik managen",
+              "v": 0
+            },
+            {
+              "n": "Mitarbeitermotivation",
+              "v": 0
+            },
+            {
+              "n": "Schnittstellenmanagement",
+              "v": 0
+            },
+            {
+              "n": "Teamführung",
+              "v": 0
+            }
+          ]
+        }
+      ]
+    },
+    "member_f7vlbdn": {
+      "meta": {
+        "owner": "UX-HMI 1",
+        "role": "UX-HMI",
+        "subtitle": "",
+        "updated": "2025-12-03T23:57:52.731Z"
+      },
+      "categories": [
+        {
+          "name": "Agiles Projektmanagement:",
+          "items": [
+            {
+              "n": "Backlog Management durchführen",
+              "v": 5
+            },
+            {
+              "n": "Scaling Agile",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Kostenmanagement:",
+          "items": [
+            {
+              "n": "Projektkostenmanagement",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Project- & Ressourcenmanagement:",
+          "items": [
+            {
+              "n": "PPP",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Projektmanagement:",
+          "items": [
+            {
+              "n": "Projektplanung",
+              "v": 0
+            },
+            {
+              "n": "Projektsteuerung",
+              "v": 0
+            },
+            {
+              "n": "Ergebnissicherung",
+              "v": 0
+            },
+            {
+              "n": "Projekt Controlling",
+              "v": 0
+            },
+            {
+              "n": "Programmmanagement",
+              "v": 0
+            },
+            {
+              "n": "Portfolio Management",
+              "v": 0
+            },
+            {
+              "n": "SMARTe Zielformulierung",
+              "v": 0
+            },
+            {
+              "n": "Machbarkeitsanalyse",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Reporting:",
+          "items": [
+            {
+              "n": "Berichtserstellung",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Risikomanagement:",
+          "items": [
+            {
+              "n": "Risikoerkennung",
+              "v": 0
+            },
+            {
+              "n": "Risikokommunikation",
+              "v": 0
+            },
+            {
+              "n": "Risikokontrollstrategien",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Stakeholder-Management:",
+          "items": [
+            {
+              "n": "Stakeholder Analyse",
+              "v": 0
+            },
+            {
+              "n": "Engagementplanung",
+              "v": 0
+            },
+            {
+              "n": "Feedback-Mechanismen",
+              "v": 0
+            },
+            {
+              "n": "Interessen- und Einflusskartierung",
+              "v": 0
+            },
+            {
+              "n": "Stakeholder-Identifikation",
+              "v": 0
+            }
+          ]
+        },
+        {
+          "name": "Teammanagement:",
+          "items": [
+            {
+              "n": "Sicherstellung von Ergebnissen",
+              "v": 0
+            },
+            {
+              "n": "Teamdynamik managen",
+              "v": 0
+            },
+            {
+              "n": "Mitarbeitermotivation",
+              "v": 0
+            },
+            {
+              "n": "Schnittstellenmanagement",
+              "v": 0
+            },
+            {
+              "n": "Teamführung",
               "v": 0
             }
           ]
@@ -315,5 +818,27 @@
       ]
     }
   },
-  "peer": {}
+  "peer": {
+    "member_isuzh6l": {
+      "member_nhuieex": {
+        "Agiles Projektmanagement:::Agile Tools nutzen": 5,
+        "Agiles Projektmanagement:::Agile Prinzipien verwenden": 5,
+        "Kostenmanagement:::Projektkostenmanagement": 1,
+        "Project- & Ressourcenmanagement:::PPP": 3,
+        "Projektmanagement:::Projektplanung": 1,
+        "Projektmanagement:::Projektsteuerung": 3
+      }
+    }
+  },
+  "roles": {
+    "POs": {
+      "label": "POs"
+    },
+    "PjMs": {
+      "label": "PjMs"
+    },
+    "UX-HMI": {
+      "label": "UX-HMI"
+    }
+  }
 }
